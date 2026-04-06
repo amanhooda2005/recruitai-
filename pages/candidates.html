@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Candidates</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .candidate-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+    .match-bar { width: 60px; height: 5px; background: var(--slate-200); border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 6px; }
+    .match-fill { height: 100%; border-radius: 99px; background: var(--green-500); }
+    .action-btns { display: flex; gap: 4px; }
+    .action-btns button { width: 30px; height: 30px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--slate-400); transition: all var(--transition); border: 1px solid transparent; }
+    .action-btns button:hover { background: var(--slate-100); color: var(--slate-700); border-color: var(--slate-200); }
+    .filter-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--radius-full); font-size: 12.5px; font-weight: 600; border: 1.5px solid var(--slate-200); color: var(--slate-600); cursor: pointer; background: var(--white); transition: all var(--transition); }
+    .filter-chip:hover, .filter-chip.active { border-color: var(--blue-400); color: var(--blue-700); background: var(--blue-50); }
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid var(--slate-100); font-size: 13px; color: var(--slate-500); }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate-600); transition: all var(--transition); }
+    .page-btn:hover { background: var(--slate-50); }
+    .page-btn.active { background: var(--blue-600); color: white; border-color: var(--blue-600); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+
+  <main class="main-content">
+    <div id="topbarMount"></div>
+
+    <div class="page-body">
+
+      <div class="page-header flex items-center justify-between">
+        <div>
+          <h1>Candidates</h1>
+          <p>Manage and track all candidates across your open roles.</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn--secondary btn--sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn btn--primary btn--sm" onclick="openAddModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Candidate
+          </button>
+        </div>
+      </div>
+
+      <!-- Search + filter bar -->
+      <div class="search-filter-bar">
+        <div class="search-input-wrap" style="max-width:340px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search by name, role, or skills…" oninput="filterCandidates()">
+        </div>
+        <select class="form-select" id="statusFilter" onchange="filterCandidates()" style="width:auto;padding:9px 36px 9px 12px;">
+          <option value="">All Statuses</option>
+          <option value="Selected">Selected</option>
+          <option value="Shortlisted">Shortlisted</option>
+          <option value="Pending">Pending</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+        <select class="form-select" id="roleFilter" onchange="filterCandidates()" style="width:auto;padding:9px 36px 9px 12px;">
+          <option value="">All Roles</option>
+          <option value="Frontend">Frontend</option>
+          <option value="Product">Product</option>
+          <option value="Data">Data</option>
+          <option value="Design">Design</option>
+          <option value="Backend">Backend</option>
+        </select>
+        <div style="margin-left:auto;font-size:13px;color:var(--slate-400);" id="countLabel">Showing all candidates</div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="cursor:pointer;">
+              </th>
+              <th>Candidate</th>
+              <th>Role Applied</th>
+              <th>Experience</th>
+              <th>Skills</th>
+              <th>AI Score</th>
+              <th>Status</th>
+              <th>Applied</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="candidateTableBody"></tbody>
+        </table>
+        <div class="pagination">
+          <span id="paginationLabel">1–10 of 24 candidates</span>
+          <div class="page-btns">
+            <div class="page-btn" onclick="prevPage()">‹</div>
+            <div class="page-btn active" id="pg1" onclick="goPage(1)">1</div>
+            <div class="page-btn" id="pg2" onclick="goPage(2)">2</div>
+            <div class="page-btn" id="pg3" onclick="goPage(3)">3</div>
+            <div class="page-btn" onclick="nextPage()">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Add Candidate Modal -->
+<div class="modal-overlay" id="addModal" style="display:none;" onclick="if(event.target===this)closeAddModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add Candidate</h2>
+      <button onclick="closeAddModal()" style="color:var(--slate-400);display:flex;align-items:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <input class="form-input" placeholder="e.g. Arjun" id="mFirst">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input class="form-input" placeholder="e.g. Kapoor" id="mLast">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" placeholder="candidate@email.com" id="mEmail">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role Applied For</label>
+          <select class="form-select" id="mRole">
+            <option>Senior Frontend Engineer</option>
+            <option>Product Manager</option>
+            <option>Data Scientist</option>
+            <option>ML Engineer</option>
+            <option>UX Designer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Years of Experience</label>
+          <input class="form-input" type="number" placeholder="e.g. 5" id="mExp">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Skills (comma-separated)</label>
+          <input class="form-input" placeholder="React, TypeScript, Node.js" id="mSkills">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn--secondary" onclick="closeAddModal()">Cancel</button>
+      <button class="btn btn--primary" onclick="addCandidate()">Add Candidate</button>
+    </div>
+  </div>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+
+document.getElementById('sidebarMount').innerHTML = buildSidebar('candidates.html');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Candidates');
+initSidebarToggle();
+
+/* ── State ─── */
+const COLORS = ['var(--blue-600)','#8b5cf6','#059669','#d97706','#db2777','#0891b2','#dc2626','#7c3aed'];
+let candidates = [];
+let filtered   = [];
+let currentPage = 1;
+const PER_PAGE  = 10;
+
+/* ── Fetch from API ─── */
+async function loadCandidates() {
+  try {
+    const { search, status, role } = getCurrentFilters();
+    const params = { page: currentPage, limit: PER_PAGE };
+    if (search) params.search = search;
+    if (status) params.status = status;
+    if (role)   params.role   = role;
+
+    const data = await Candidates.list(params);
+    candidates = data.candidates.map((c, i) => ({ ...c, color: COLORS[i % COLORS.length] }));
+    filtered   = [...candidates];
+    renderFromData(data.total);
+  } catch (err) {
+    console.error('Load candidates error:', err);
+    if (err.status === 401) Auth.logout();
+  }
+}
+
+function getCurrentFilters() {
+  return {
+    search: document.getElementById('searchInput')?.value.toLowerCase() || '',
+    status: document.getElementById('statusFilter')?.value || '',
+    role:   document.getElementById('roleFilter')?.value || '',
+  };
+}
+
+/* ── Render ─── */
+function renderFromData(total = candidates.length) {
+  const start  = (currentPage - 1) * PER_PAGE;
+  const tbody  = document.getElementById('candidateTableBody');
+  const slice  = candidates;
+
+  document.getElementById('countLabel').textContent       = `Showing ${Math.min(start+1,total)}–${Math.min(start+PER_PAGE,total)} of ${total}`;
+  document.getElementById('paginationLabel').textContent  = `${Math.min(start+1,total)}–${Math.min(start+PER_PAGE,total)} of ${total} candidates`;
+
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><p>No candidates found.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = slice.map(c => `
+    <tr>
+      <td><input type="checkbox" style="cursor:pointer;"></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="candidate-avatar" style="background:linear-gradient(135deg,${c.color},${c.color}cc);">${c.initials || c.name.slice(0,2).toUpperCase()}</div>
+          <div>
+            <div style="font-weight:600;color:var(--slate-900);font-size:13.5px;">${c.name}</div>
+            <div style="font-size:12px;color:var(--slate-400);">Applied ${fmtDate(c.applied)}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--slate-600);font-size:13.5px;">${c.role || '—'}</td>
+      <td style="color:var(--slate-600);font-size:13.5px;">${c.exp || '—'}</td>
+      <td>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          ${c.skills.slice(0,2).map(s=>`<span style="background:var(--slate-100);color:var(--slate-600);font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;">${s}</span>`).join('')}
+          ${c.skills.length>2?`<span style="background:var(--slate-100);color:var(--slate-400);font-size:11px;padding:2px 8px;border-radius:99px;">+${c.skills.length-2}</span>`:''}
+        </div>
+      </td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="match-bar"><div class="match-fill" style="width:${c.score}%;background:${c.score>=85?'var(--green-500)':c.score>=65?'var(--amber-500)':'var(--red-500)'}"></div></div>
+          <span style="font-size:13px;font-weight:700;color:${c.score>=85?'var(--green-700)':c.score>=65?'var(--amber-700)':'var(--red-700)'};">${c.score}%</span>
+        </div>
+      </td>
+      <td>${statusTag(c.status)}</td>
+      <td style="color:var(--slate-400);font-size:12.5px;">${fmtDate(c.applied)}</td>
+      <td>
+        <div class="action-btns">
+          <button title="View profile" onclick="window.location='candidate-profile.html?id=${c.id}'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          ${can('candidates:status') ? `
+          <button title="Cycle status" onclick="changeStatus('${c.id}','${c.status}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>` : ''}
+          ${can('candidates:delete') ? `
+          <button title="Delete" onclick="deleteCandidate('${c.id}')" style="color:var(--red-400);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+/* ── Filter — re-fetches from API ─── */
+function filterCandidates() {
+  currentPage = 1;
+  loadCandidates();
+}
+
+/* ── Pagination ─── */
+function goPage(n) {
+  currentPage = n;
+  [1,2,3].forEach(i => document.getElementById('pg'+i)?.classList.toggle('active', i===n));
+  loadCandidates();
+}
+function nextPage() { currentPage++; loadCandidates(); }
+function prevPage() { if (currentPage > 1) { currentPage--; loadCandidates(); } }
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('tbody input[type=checkbox]').forEach(c=>c.checked=cb.checked);
+}
+
+/* ── Status cycle ─── */
+async function changeStatus(id, currentStatus) {
+  try {
+    await Candidates.cycleStatus(id, currentStatus);
+    await loadCandidates();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+/* ── Delete ─── */
+async function deleteCandidate(id) {
+  if (!confirm('Remove this candidate?')) return;
+  try {
+    await Candidates.delete(id);
+    showToast('Candidate removed');
+    await loadCandidates();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+/* ── Add modal ─── */
+function openAddModal()  { document.getElementById('addModal').style.display='flex'; }
+function closeAddModal() { document.getElementById('addModal').style.display='none'; }
+
+async function addCandidate() {
+  const first = document.getElementById('mFirst').value.trim();
+  const last  = document.getElementById('mLast').value.trim();
+  if (!first || !last) { alert("Please enter the candidate's name."); return; }
+
+  const fd = new FormData();
+  fd.append('name',   `${first} ${last}`);
+  fd.append('role',   document.getElementById('mRole').value || '');
+  fd.append('exp',    (document.getElementById('mExp').value || '') + ' yrs');
+  fd.append('skills', JSON.stringify(
+    document.getElementById('mSkills').value.split(',').map(s=>s.trim()).filter(Boolean)
+  ));
+
+  try {
+    await Candidates.create(fd);
+    showToast('Candidate added!');
+    closeAddModal();
+    await loadCandidates();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+/* ── Boot ─── */
+// Hide add/delete buttons for users who can't write candidates
+document.addEventListener('DOMContentLoaded', () => {
+  hideIfCannot('candidates:create', '[onclick="openAddModal()"]', 'hide');
+});
+loadCandidates();
+</script>
+</body>
+</html>

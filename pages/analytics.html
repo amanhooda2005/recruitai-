@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Analytics</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .analytics-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .analytics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+    /* Custom bar chart */
+    .bar-chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding-top: 20px; }
+    .bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+    .bar-stack { display: flex; flex-direction: column; justify-content: flex-end; flex: 1; width: 100%; gap: 2px; }
+    .bar-seg { border-radius: 3px 3px 0 0; min-height: 4px; width: 100%; transition: opacity .2s; }
+    .bar-seg:not(:last-child) { border-radius: 0; }
+    .bar-seg:first-child { border-radius: 3px 3px 0 0; }
+    .bar-month { font-size: 11px; color: var(--slate-400); }
+    /* Donut chart via CSS */
+    .donut-svg { transform: rotate(-90deg); }
+    /* Line chart */
+    .line-chart-wrap { position: relative; height: 160px; margin-top: 12px; }
+    .line-chart-wrap canvas { position: absolute; inset: 0; }
+    /* Source bars */
+    .source-bars { display: flex; flex-direction: column; gap: 12px; }
+    .source-row { display: flex; align-items: center; gap: 10px; }
+    .source-name { font-size: 13px; color: var(--slate-600); width: 90px; flex-shrink: 0; }
+    .source-bar-wrap { flex: 1; background: var(--slate-100); border-radius: 99px; height: 8px; overflow: hidden; }
+    .source-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+    .source-val { font-size: 13px; font-weight: 700; color: var(--slate-700); width: 36px; text-align: right; }
+    /* KPI Row */
+    .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: 18px 20px; }
+    .kpi-label { font-size: 12px; color: var(--slate-400); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .kpi-value { font-size: 26px; font-weight: 700; font-family: var(--font-display); color: var(--slate-900); letter-spacing: -.3px; }
+    .kpi-change { font-size: 12px; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+    .kpi-change.up { color: var(--green-700); }
+    .kpi-change.down { color: var(--red-600); }
+    @media (max-width:900px) { .analytics-grid { grid-template-columns:1fr; } .analytics-row { grid-template-columns:1fr; } .kpi-row { grid-template-columns:1fr 1fr; } }
+    @media (max-width:500px) { .kpi-row { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+
+  <main class="main-content">
+    <div id="topbarMount"></div>
+
+    <div class="page-body">
+      <div class="page-header flex items-center justify-between">
+        <div>
+          <h1>Analytics</h1>
+          <p>Insights into your hiring performance and trends.</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select class="form-select" style="padding:8px 32px 8px 12px;font-size:13px;" id="periodSelect" onchange="renderAll()">
+            <option value="6">Last 6 months</option>
+            <option value="12" selected>Last 12 months</option>
+          </select>
+          <button class="btn btn--secondary btn--sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row">
+        <div class="kpi-card fade-up fade-up-1">
+          <div class="kpi-label">Time to Hire</div>
+          <div class="kpi-value">18d</div>
+          <div class="kpi-change up">↓ 4d faster than last quarter</div>
+        </div>
+        <div class="kpi-card fade-up fade-up-2">
+          <div class="kpi-label">Offer Accept Rate</div>
+          <div class="kpi-value">82%</div>
+          <div class="kpi-change up">↑ 6% vs last quarter</div>
+        </div>
+        <div class="kpi-card fade-up fade-up-3">
+          <div class="kpi-label">Cost per Hire</div>
+          <div class="kpi-value">₹24k</div>
+          <div class="kpi-change up">↓ ₹3k vs last quarter</div>
+        </div>
+        <div class="kpi-card fade-up fade-up-4">
+          <div class="kpi-label">AI Screen Rate</div>
+          <div class="kpi-value">94%</div>
+          <div class="kpi-change up">↑ 11% vs last quarter</div>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="analytics-grid">
+
+        <!-- Bar chart: Applications & Hires -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3>Applications &amp; Hires</h3>
+              <p>Monthly hiring funnel volume</p>
+            </div>
+            <div style="display:flex;gap:16px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-500);">
+                <div style="width:10px;height:10px;border-radius:2px;background:var(--blue-400);"></div>Applied
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-500);">
+                <div style="width:10px;height:10px;border-radius:2px;background:var(--blue-600);"></div>Shortlisted
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slate-500);">
+                <div style="width:10px;height:10px;border-radius:2px;background:var(--green-500);"></div>Hired
+              </div>
+            </div>
+          </div>
+          <div class="bar-chart-wrap" id="barChart"></div>
+        </div>
+
+        <!-- Donut: Status breakdown -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3>Candidate Status</h3>
+              <p>Current pipeline breakdown</p>
+            </div>
+          </div>
+          <div class="donut-wrapper" style="margin-top:8px;">
+            <div>
+              <svg width="130" height="130" viewBox="0 0 130 130" class="donut-svg" id="donutChart"></svg>
+            </div>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--slate-100);">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:12px;color:var(--slate-500);">Funnel conversion</span>
+              <span style="font-size:12px;font-weight:700;color:var(--green-700);">26%</span>
+            </div>
+            <div style="background:var(--slate-100);border-radius:99px;height:6px;overflow:hidden;">
+              <div style="width:26%;height:100%;background:var(--green-500);border-radius:99px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second row -->
+      <div class="analytics-row">
+
+        <!-- Trend line: Time to hire -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3>Time to Hire Trend</h3>
+              <p>Average days per month</p>
+            </div>
+            <span class="tag tag--green">Improving</span>
+          </div>
+          <canvas id="lineCanvas" height="160" style="width:100%;height:160px;display:block;margin-top:10px;"></canvas>
+        </div>
+
+        <!-- Source breakdown -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3>Candidate Sources</h3>
+              <p>Where applicants come from</p>
+            </div>
+          </div>
+          <div class="source-bars" style="margin-top:16px;" id="sourceChart"></div>
+        </div>
+      </div>
+
+      <!-- Bottom: Dept breakdown table -->
+      <div class="chart-card" style="margin-top:20px;">
+        <div class="chart-card-header">
+          <div>
+            <h3>Department Hiring Overview</h3>
+            <p>Performance by team</p>
+          </div>
+        </div>
+        <div class="table-wrapper" style="margin-top:-4px;border:none;border-radius:0;box-shadow:none;">
+          <table>
+            <thead><tr>
+              <th>Department</th>
+              <th>Open Roles</th>
+              <th>Applicants</th>
+              <th>Shortlisted</th>
+              <th>Hired</th>
+              <th>Avg. Time to Hire</th>
+              <th>Conversion</th>
+            </tr></thead>
+            <tbody id="deptTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('analytics.html');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Analytics');
+initSidebarToggle();
+
+/* ── Data ─── */
+const monthData = [
+  { m:'Jan', applied:48, shortlisted:18, hired:5, ttH:24 },
+  { m:'Feb', applied:62, shortlisted:22, hired:7, ttH:22 },
+  { m:'Mar', applied:55, shortlisted:20, hired:6, ttH:21 },
+  { m:'Apr', applied:78, shortlisted:30, hired:9, ttH:20 },
+  { m:'May', applied:91, shortlisted:35, hired:11, ttH:19 },
+  { m:'Jun', applied:84, shortlisted:32, hired:10, ttH:18 },
+  { m:'Jul', applied:70, shortlisted:26, hired:8, ttH:19 },
+  { m:'Aug', applied:95, shortlisted:38, hired:13, ttH:17 },
+  { m:'Sep', applied:102, shortlisted:40, hired:14, ttH:17 },
+  { m:'Oct', applied:88, shortlisted:34, hired:11, ttH:18 },
+  { m:'Nov', applied:115, shortlisted:44, hired:15, ttH:16 },
+  { m:'Dec', applied:128, shortlisted:50, hired:18, ttH:15 },
+];
+
+const donutData = [
+  { label:'Shortlisted', value:64,  color:'#4f7fff' },
+  { label:'Pending',     value:89,  color:'#f59e0b' },
+  { label:'Rejected',    value:112, color:'#ef4444' },
+  { label:'Selected',    value:22,  color:'#22c55e' },
+];
+
+const sources = [
+  { name:'LinkedIn',  count:98, color:'#0077B5' },
+  { name:'Indeed',    count:72, color:'#2164f3' },
+  { name:'Referral',  count:54, color:'#22c55e' },
+  { name:'Website',   count:38, color:'#f59e0b' },
+  { name:'Glassdoor', count:22, color:'#0caa41' },
+  { name:'Other',     count:15, color:'#94a3b8' },
+];
+
+const depts = [
+  { dept:'Engineering', open:4, applicants:96, shortlisted:38, hired:12, ttH:'17d', conv:'13%' },
+  { dept:'Product',     open:2, applicants:44, shortlisted:16, hired:5,  ttH:'20d', conv:'11%' },
+  { dept:'Design',      open:1, applicants:28, shortlisted:10, hired:3,  ttH:'22d', conv:'11%' },
+  { dept:'Analytics',   open:2, applicants:38, shortlisted:14, hired:4,  ttH:'19d', conv:'11%' },
+  { dept:'Marketing',   open:1, applicants:20, shortlisted:8,  hired:2,  ttH:'24d', conv:'10%' },
+];
+
+/* ── Bar chart ─── */
+function renderBarChart() {
+  const n = parseInt(document.getElementById('periodSelect').value);
+  const data = monthData.slice(-n);
+  const maxApplied = Math.max(...data.map(d=>d.applied));
+  const el = document.getElementById('barChart');
+  el.innerHTML = data.map(d => {
+    const ah = (d.applied/maxApplied*100).toFixed(1);
+    const sh = (d.shortlisted/maxApplied*100).toFixed(1);
+    const hh = (d.hired/maxApplied*100).toFixed(1);
+    return `
+      <div class="bar-col">
+        <div class="bar-stack" style="max-width:32px;">
+          <div class="bar-seg" style="height:${ah}%;background:var(--blue-200);border-radius:4px 4px 0 0;" title="Applied: ${d.applied}"></div>
+        </div>
+        <div class="bar-month">${d.m}</div>
+      </div>`;
+  }).join('');
+
+  /* Overlay shortlisted + hired as separate color columns using positioned rows */
+  /* (Simplified: single-color bars showing applied, with shortlisted in darker blue) */
+  el.innerHTML = data.map(d => {
+    const scale = d.applied/maxApplied;
+    const sScale = d.shortlisted/maxApplied;
+    const hScale = d.hired/maxApplied;
+    return `
+      <div class="bar-col" title="${d.m}: ${d.applied} applied, ${d.shortlisted} shortlisted, ${d.hired} hired" style="cursor:default;">
+        <div style="display:flex;align-items:flex-end;gap:3px;height:100%;width:100%;">
+          <div style="flex:1;background:var(--blue-200);border-radius:3px 3px 0 0;height:${scale*100}%;min-height:4px;" title="Applied: ${d.applied}"></div>
+          <div style="flex:1;background:var(--blue-500);border-radius:3px 3px 0 0;height:${sScale*100}%;min-height:4px;" title="Shortlisted: ${d.shortlisted}"></div>
+          <div style="flex:1;background:var(--green-500);border-radius:3px 3px 0 0;height:${hScale*100}%;min-height:4px;" title="Hired: ${d.hired}"></div>
+        </div>
+        <div class="bar-month">${d.m}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ── Donut chart (SVG) ─── */
+function renderDonut() {
+  const total = donutData.reduce((s,d)=>s+d.value, 0);
+  const cx=65, cy=65, r=50, stroke=18;
+  const circumference = 2*Math.PI*r;
+  let offset = 0;
+  let paths = '';
+  donutData.forEach(d => {
+    const pct = d.value/total;
+    const dash = pct*circumference;
+    const gap  = circumference - dash;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="${stroke}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}" stroke-linecap="butt"/>`;
+    offset += dash;
+  });
+  document.getElementById('donutChart').innerHTML = paths + `<text x="${cx}" y="${cy}" text-anchor="middle" dy=".35em" transform="rotate(90 ${cx} ${cy})" fill="var(--slate-900)" font-size="18" font-weight="700" font-family="Fraunces,serif">${total}</text><text x="${cx}" y="${cy+16}" text-anchor="middle" transform="rotate(90 ${cx} ${cy})" fill="#94a3b8" font-size="9" font-family="DM Sans,sans-serif" font-weight="600">TOTAL</text>`;
+
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = donutData.map(d=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color};"></div>
+      <span>${d.label}</span>
+      <span style="margin-left:auto;font-weight:700;color:var(--slate-800);">${d.value}</span>
+    </div>`).join('');
+}
+
+/* ── Line chart (canvas) ─── */
+function renderLine() {
+  const n = parseInt(document.getElementById('periodSelect').value);
+  const data = monthData.slice(-n).map(d=>d.ttH);
+  const canvas = document.getElementById('lineCanvas');
+  canvas.width = canvas.parentElement.offsetWidth || 400;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = 160;
+  const PAD = { top:16, right:16, bottom:28, left:36 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+  const maxV = Math.max(...data) + 2;
+  const minV = Math.min(...data) - 2;
+  ctx.clearRect(0,0,W,H);
+
+  const pts = data.map((v,i) => ({
+    x: PAD.left + (i/(data.length-1))*chartW,
+    y: PAD.top + (1-(v-minV)/(maxV-minV))*chartH,
+  }));
+
+  /* Grid */
+  ctx.strokeStyle='#f1f3f8'; ctx.lineWidth=1;
+  [0,.25,.5,.75,1].forEach(p => {
+    const y = PAD.top + p*chartH;
+    ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+chartW,y); ctx.stroke();
+    const val = Math.round(maxV - p*(maxV-minV));
+    ctx.fillStyle='#94a3b8'; ctx.font='10px DM Sans,sans-serif'; ctx.textAlign='right';
+    ctx.fillText(val+'d', PAD.left-5, y+4);
+  });
+
+  /* Area */
+  const grad = ctx.createLinearGradient(0,PAD.top,0,H);
+  grad.addColorStop(0,'rgba(79,127,255,.18)'); grad.addColorStop(1,'rgba(79,127,255,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, H-PAD.bottom);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x, H-PAD.bottom);
+  ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+
+  /* Line */
+  ctx.beginPath(); ctx.strokeStyle='#3b6be8'; ctx.lineWidth=2;
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+
+  /* Dots */
+  pts.forEach((p,i) => {
+    ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2);
+    ctx.fillStyle='white'; ctx.fill();
+    ctx.strokeStyle='#3b6be8'; ctx.lineWidth=2; ctx.stroke();
+    /* Month label */
+    const m = monthData.slice(-n)[i].m;
+    ctx.fillStyle='#94a3b8'; ctx.font='10px DM Sans,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(m, p.x, H-PAD.bottom+12);
+  });
+}
+
+/* ── Source chart ─── */
+function renderSources() {
+  const maxCount = Math.max(...sources.map(s=>s.count));
+  document.getElementById('sourceChart').innerHTML = sources.map(s=>`
+    <div class="source-row">
+      <div class="source-name">${s.name}</div>
+      <div class="source-bar-wrap">
+        <div class="source-bar-fill" style="width:${(s.count/maxCount*100)}%;background:${s.color};"></div>
+      </div>
+      <div class="source-val">${s.count}</div>
+    </div>`).join('');
+}
+
+/* ── Dept table ─── */
+function renderDeptTable() {
+  document.getElementById('deptTable').innerHTML = depts.map(d=>`
+    <tr>
+      <td style="font-weight:600;color:var(--slate-800);">${d.dept}</td>
+      <td>${d.open}</td>
+      <td>${d.applicants}</td>
+      <td>${d.shortlisted}</td>
+      <td><span style="font-weight:700;color:var(--green-700);">${d.hired}</span></td>
+      <td>${d.ttH}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;background:var(--slate-100);border-radius:99px;height:5px;overflow:hidden;max-width:80px;">
+            <div style="width:${d.conv};height:100%;background:var(--blue-500);border-radius:99px;"></div>
+          </div>
+          <span style="font-size:12.5px;font-weight:600;color:var(--slate-600);">${d.conv}</span>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderAll() {
+  renderBarChart();
+  renderLine();
+}
+
+renderBarChart();
+renderDonut();
+renderLine();
+renderSources();
+renderDeptTable();
+
+window.addEventListener('resize', () => renderLine());
+</script>
+</body>
+</html>

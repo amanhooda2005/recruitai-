@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Leaderboard</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .lb-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
+    @media(max-width:1000px){ .lb-grid { grid-template-columns: 1fr; } }
+    .lb-card { background:white; border-radius:var(--radius-xl); border:1px solid var(--slate-200); overflow:hidden; }
+    .lb-header { padding:16px 20px; border-bottom:1px solid var(--slate-100); display:flex; align-items:center; justify-content:space-between; }
+    .lb-row { display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid var(--slate-100); cursor:pointer; transition:background .1s; }
+    .lb-row:hover { background:var(--slate-50); }
+    .lb-row:last-child { border-bottom:none; }
+    .lb-rank { font-size:20px; font-weight:800; font-family:var(--font-display); width:28px; text-align:center; }
+    .rank-1 { color:#f59e0b; }
+    .rank-2 { color:#94a3b8; }
+    .rank-3 { color:#b45309; }
+    .lb-avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; color:white; font-size:13px; flex-shrink:0; }
+    .lb-info { flex:1; min-width:0; }
+    .lb-name { font-size:14px; font-weight:600; color:var(--slate-900); }
+    .lb-role { font-size:12px; color:var(--slate-400); }
+    .lb-score { text-align:right; }
+    .lb-score-val { font-size:22px; font-weight:800; font-family:var(--font-display); color:var(--slate-900); }
+    .lb-score-label { font-size:10px; color:var(--slate-400); text-transform:uppercase; letter-spacing:.06em; }
+    .vote-bar { display:flex; height:6px; border-radius:99px; overflow:hidden; gap:1px; margin-top:6px; min-width:60px; }
+    .vote-hire { background:var(--green-500); }
+    .vote-maybe { background:var(--amber-400); }
+    .vote-no { background:var(--red-400); }
+    /* Scorecard form */
+    .sc-card { background:white; border-radius:var(--radius-xl); border:1px solid var(--slate-200); }
+    .sc-header { padding:16px 20px; border-bottom:1px solid var(--slate-100); }
+    .sc-body { padding:20px; display:flex; flex-direction:column; gap:14px; }
+    .dim-row { display:flex; align-items:center; gap:10px; }
+    .dim-label { width:140px; font-size:13px; color:var(--slate-700); flex-shrink:0; }
+    .dim-stars { display:flex; gap:4px; }
+    .dim-star { font-size:18px; cursor:pointer; color:var(--slate-300); transition:color .1s; }
+    .dim-star.filled { color:#f59e0b; }
+    .dim-weight { font-size:11px; color:var(--slate-400); }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field label { font-size:12px; font-weight:600; color:var(--slate-600); text-transform:uppercase; letter-spacing:.05em; }
+    .field select, .field textarea { border:1.5px solid var(--slate-200); border-radius:var(--radius-md); padding:8px 12px; font-size:13.5px; color:var(--slate-800); outline:none; font-family:inherit; background:white; }
+    .field select:focus, .field textarea:focus { border-color:var(--blue-400); }
+    .rec-btn { flex:1; padding:8px; border:1.5px solid var(--slate-200); border-radius:var(--radius-md); font-size:12px; font-weight:600; cursor:pointer; background:white; transition:all .15s; }
+    .rec-btn.active.hire     { background:#dcfce7; border-color:#22c55e; color:#166534; }
+    .rec-btn.active.maybe    { background:#fef9c3; border-color:#f59e0b; color:#92400e; }
+    .rec-btn.active.no-hire  { background:#fee2e2; border-color:#ef4444; color:#991b1b; }
+    .rec-btn.active.s-hire   { background:#dbeafe; border-color:#3b82f6; color:#1d4ed8; }
+    .dim-bars { display:flex; flex-direction:column; gap:8px; }
+    .dim-bar-row { display:flex; align-items:center; gap:8px; font-size:12px; }
+    .dim-bar-lbl { width:120px; color:var(--slate-500); flex-shrink:0; }
+    .dim-bar-wrap { flex:1; background:var(--slate-100); border-radius:99px; height:5px; overflow:hidden; }
+    .dim-bar-fill { height:100%; border-radius:99px; background:var(--blue-500); }
+    .dim-bar-val { width:24px; text-align:right; font-weight:700; color:var(--slate-700); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+  <main class="main-content">
+    <div id="topbarMount"></div>
+    <div class="page-body">
+
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">🏆 Leaderboard & Scorecards</h1>
+          <p style="font-size:13px;color:var(--slate-400);">Team-based candidate evaluation and hiring consensus.</p>
+        </div>
+      </div>
+
+      <div class="lb-grid">
+        <!-- Leaderboard -->
+        <div>
+          <div class="lb-card" style="margin-bottom:20px;">
+            <div class="lb-header">
+              <span style="font-size:15px;font-weight:700;color:var(--slate-800);">Candidate Leaderboard</span>
+              <span id="lbSubtitle" style="font-size:12px;color:var(--slate-400);">Ranked by composite score</span>
+            </div>
+            <div id="leaderboardList"><div style="text-align:center;padding:40px;color:var(--slate-400);">Loading…</div></div>
+          </div>
+
+          <!-- Selected candidate scores -->
+          <div class="lb-card" id="dimBreakdownCard" style="display:none;">
+            <div class="lb-header">
+              <span style="font-size:14px;font-weight:700;color:var(--slate-800);" id="dimCandidateName">Score Breakdown</span>
+              <span id="dimReviewCount" style="font-size:12px;color:var(--slate-400);"></span>
+            </div>
+            <div style="padding:20px;">
+              <div class="dim-bars" id="dimBarsEl"></div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--slate-100);">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:10px;">Team Vote</div>
+                <div id="voteBreakdown" style="display:flex;gap:16px;flex-wrap:wrap;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scorecard form -->
+        <div class="sc-card">
+          <div class="sc-header">
+            <div style="font-size:15px;font-weight:700;color:var(--slate-800);">Submit Scorecard</div>
+            <div style="font-size:12px;color:var(--slate-400);margin-top:2px;">Rate a candidate on key dimensions</div>
+          </div>
+          <div class="sc-body">
+            <div class="field">
+              <label>Candidate</label>
+              <select id="scCandidate" onchange="loadCandidateScores()">
+                <option value="">Select candidate…</option>
+              </select>
+            </div>
+
+            <div>
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:12px;">Ratings (1–5 ⭐)</div>
+              <div style="display:flex;flex-direction:column;gap:10px;" id="dimRatings"></div>
+            </div>
+
+            <div>
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:8px;">Recommendation</div>
+              <div style="display:flex;gap:6px;">
+                <button class="rec-btn s-hire" onclick="setRec('Strong Hire',this)">💙 Strong Hire</button>
+                <button class="rec-btn hire"   onclick="setRec('Hire',this)">✅ Hire</button>
+                <button class="rec-btn maybe"  onclick="setRec('Maybe',this)">🤔 Maybe</button>
+                <button class="rec-btn no-hire" onclick="setRec('No Hire',this)">❌ No Hire</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Key Strengths</label>
+              <textarea id="scStrengths" rows="2" placeholder="What stood out positively?"></textarea>
+            </div>
+            <div class="field">
+              <label>Concerns</label>
+              <textarea id="scWeaknesses" rows="2" placeholder="Any risks or gaps?"></textarea>
+            </div>
+            <div class="field">
+              <label>Overall Notes</label>
+              <textarea id="scNotes" rows="2" placeholder="Additional context…"></textarea>
+            </div>
+
+            <button onclick="submitScorecard()" class="btn btn--primary" style="width:100%;justify-content:center;" id="submitScBtn">Submit Scorecard</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Leaderboard');
+initSidebarToggle();
+
+const COLORS = ['var(--blue-600)','#8b5cf6','#059669','#d97706','#db2777','#0891b2'];
+const DIMS = [
+  { id:'technical',    label:'Technical Skills', weight:30 },
+  { id:'communication',label:'Communication',    weight:20 },
+  { id:'culture',      label:'Culture Fit',      weight:20 },
+  { id:'experience',   label:'Experience',       weight:20 },
+  { id:'motivation',   label:'Motivation',       weight:10 },
+];
+let currentRec   = '';
+let dimRatings   = {};
+DIMS.forEach(d => dimRatings[d.id] = 0);
+
+async function init() {
+  // Build dim ratings UI
+  document.getElementById('dimRatings').innerHTML = DIMS.map(d => `
+    <div class="dim-row">
+      <div class="dim-label">${d.label} <span class="dim-weight">(${d.weight}%)</span></div>
+      <div class="dim-stars" id="stars-${d.id}">
+        ${[1,2,3,4,5].map(n=>`<span class="dim-star" onclick="setDimRating('${d.id}',${n})" onmouseover="hoverStars('${d.id}',${n})" onmouseout="resetStarsHover('${d.id}')">★</span>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // Load candidates for select
+  const { candidates } = await Candidates.list({ limit:200 });
+  document.getElementById('scCandidate').innerHTML =
+    `<option value="">Select candidate…</option>` +
+    candidates.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+
+  await loadLeaderboard();
+}
+
+async function loadLeaderboard() {
+  try {
+    const { leaderboard } = await apiFetch('/scorecards/leaderboard');
+    document.getElementById('lbSubtitle').textContent = `${leaderboard.length} candidates reviewed`;
+    const el = document.getElementById('leaderboardList');
+    if (!leaderboard.length) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--slate-400);">No scorecards submitted yet. Be the first!</div>';
+      return;
+    }
+    el.innerHTML = leaderboard.map((c,i) => {
+      const total = c.votes.hire + c.votes.noHire + c.votes.maybe || 1;
+      const color = COLORS[i % COLORS.length];
+      return `<div class="lb-row" onclick="showDimBreakdown(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+        <div class="lb-rank rank-${i+1}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+        <div class="lb-avatar" style="background:linear-gradient(135deg,${color},${color}cc)">${c.initials}</div>
+        <div class="lb-info">
+          <div class="lb-name">${c.name}</div>
+          <div class="lb-role">${c.role||'—'} · ${c.reviewCount} review${c.reviewCount!==1?'s':''}</div>
+          <div class="vote-bar" style="width:80px;">
+            <div class="vote-hire"  style="flex:${c.votes.hire}"></div>
+            <div class="vote-maybe" style="flex:${c.votes.maybe}"></div>
+            <div class="vote-no"    style="flex:${c.votes.noHire}"></div>
+          </div>
+        </div>
+        <div class="lb-score">
+          <div class="lb-score-val">${c.composite}</div>
+          <div class="lb-score-label">Score</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err){ showToast(err.message,'error'); }
+}
+
+function showDimBreakdown(c) {
+  document.getElementById('dimBreakdownCard').style.display = 'block';
+  document.getElementById('dimCandidateName').textContent   = c.name;
+  document.getElementById('dimReviewCount').textContent     = `${c.reviewCount} review${c.reviewCount!==1?'s':''}`;
+
+  document.getElementById('dimBarsEl').innerHTML = DIMS.map(d => `
+    <div class="dim-bar-row">
+      <span class="dim-bar-lbl">${d.label}</span>
+      <div class="dim-bar-wrap"><div class="dim-bar-fill" style="width:${(c.dimScores[d.id]||0)/5*100}%"></div></div>
+      <span class="dim-bar-val">${(c.dimScores[d.id]||0).toFixed(1)}</span>
+    </div>`).join('');
+
+  const total = c.votes.hire + c.votes.maybe + c.votes.noHire || 1;
+  document.getElementById('voteBreakdown').innerHTML = [
+    ['✅ Hire','#22c55e',c.votes.hire],
+    ['🤔 Maybe','#f59e0b',c.votes.maybe],
+    ['❌ No Hire','#ef4444',c.votes.noHire],
+  ].map(([label,color,count])=>`
+    <div style="text-align:center;">
+      <div style="font-size:22px;font-weight:800;color:${color};">${count}</div>
+      <div style="font-size:11px;color:var(--slate-400);">${label}</div>
+    </div>`).join('');
+}
+
+function setDimRating(dimId, val) {
+  dimRatings[dimId] = val;
+  updateStarUI(dimId, val);
+}
+function hoverStars(dimId, val) {
+  document.querySelectorAll(`#stars-${dimId} .dim-star`).forEach((s,i) => s.style.color = i<val?'#f59e0b':'var(--slate-300)');
+}
+function resetStarsHover(dimId) { updateStarUI(dimId, dimRatings[dimId]); }
+function updateStarUI(dimId, val) {
+  document.querySelectorAll(`#stars-${dimId} .dim-star`).forEach((s,i) => {
+    s.classList.toggle('filled', i < val);
+    s.style.color = i < val ? '#f59e0b' : 'var(--slate-300)';
+  });
+}
+
+function setRec(rec, btn) {
+  currentRec = rec;
+  document.querySelectorAll('.rec-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function loadCandidateScores() {
+  const id = document.getElementById('scCandidate').value;
+  if (!id) return;
+  try {
+    const { aggregate } = await apiFetch('/scorecards/candidate/'+id);
+    if (aggregate) {
+      showToast(`Already ${aggregate.reviewCount} review${aggregate.reviewCount!==1?'s':''} for this candidate`,'info');
+    }
+  } catch {}
+}
+
+async function submitScorecard() {
+  const candidateId = document.getElementById('scCandidate').value;
+  if (!candidateId)  return showToast('Select a candidate','error');
+  if (!currentRec)   return showToast('Select a recommendation','error');
+  if (DIMS.every(d => !dimRatings[d.id])) return showToast('Rate at least one dimension','error');
+
+  const btn = document.getElementById('submitScBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    await apiFetch('/scorecards', { method:'POST', body: JSON.stringify({
+      candidateId, scores: { ...dimRatings },
+      recommendation: currentRec,
+      strengths:  document.getElementById('scStrengths').value,
+      weaknesses: document.getElementById('scWeaknesses').value,
+      notes:      document.getElementById('scNotes').value,
+    })});
+    showToast('Scorecard submitted! 🏆');
+    await loadLeaderboard();
+    // Reset
+    DIMS.forEach(d => { dimRatings[d.id]=0; updateStarUI(d.id,0); });
+    currentRec = '';
+    document.querySelectorAll('.rec-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('scStrengths').value = '';
+    document.getElementById('scWeaknesses').value = '';
+    document.getElementById('scNotes').value = '';
+  } catch(err){ showToast(err.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Submit Scorecard'; }
+}
+
+init();
+</script>
+</body>
+</html>

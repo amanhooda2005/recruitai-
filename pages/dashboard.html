@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Dashboard</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .pipeline-stages { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+    .pipeline-stage { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: 16px; }
+    .pipeline-stage-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--slate-400); margin-bottom: 10px; }
+    .pipeline-stage-count { font-size: 26px; font-weight: 700; font-family: var(--font-display); color: var(--slate-900); margin-bottom: 6px; }
+    .pipeline-bar { background: var(--slate-100); border-radius: 99px; height: 5px; overflow: hidden; }
+    .pipeline-fill { height: 100%; border-radius: 99px; }
+    @media (max-width:700px) { .pipeline-stages { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar injected by JS -->
+  <div id="sidebarMount"></div>
+
+  <main class="main-content">
+    <!-- Topbar -->
+    <div id="topbarMount"></div>
+
+    <div class="page-body">
+
+      <!-- Page header -->
+      <div class="page-header flex items-center justify-between" style="margin-bottom:20px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">Good morning, Sarah 👋</h1>
+          <p style="font-size:13.5px;color:var(--slate-400);">Here's what's happening in your hiring pipeline today.</p>
+        </div>
+        <a href="jobs.html" class="btn btn--primary btn--sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Job
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid mb-24">
+        <div class="stat-card fade-up fade-up-1">
+          <div class="stat-card-top">
+            <div class="stat-card-icon" style="background:var(--blue-50);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span class="stat-change up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+              12%
+            </span>
+          </div>
+          <div class="stat-value">247</div>
+          <div class="stat-label">Total Candidates</div>
+        </div>
+
+        <div class="stat-card fade-up fade-up-2">
+          <div class="stat-card-top">
+            <div class="stat-card-icon" style="background:var(--green-50);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <span class="stat-change up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+              8%
+            </span>
+          </div>
+          <div class="stat-value">64</div>
+          <div class="stat-label">Shortlisted</div>
+        </div>
+
+        <div class="stat-card fade-up fade-up-3">
+          <div class="stat-card-top">
+            <div class="stat-card-icon" style="background:var(--amber-50);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber-700)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span class="stat-change up">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>
+              5%
+            </span>
+          </div>
+          <div class="stat-value">18</div>
+          <div class="stat-label">Interviews Scheduled</div>
+        </div>
+
+        <div class="stat-card fade-up fade-up-4">
+          <div class="stat-card-top">
+            <div class="stat-card-icon" style="background:var(--red-50);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red-500)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <span class="stat-change down">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+              3%
+            </span>
+          </div>
+          <div class="stat-value">112</div>
+          <div class="stat-label">Rejected</div>
+        </div>
+      </div>
+
+      <!-- Pipeline stages -->
+      <div class="mb-24">
+        <h2 style="font-size:15px;margin-bottom:14px;font-family:var(--font-display);">Hiring Pipeline</h2>
+        <div class="pipeline-stages">
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-label">Applied</div>
+            <div class="pipeline-stage-count">247</div>
+            <div class="pipeline-bar"><div class="pipeline-fill" style="width:100%;background:var(--blue-400);"></div></div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-label">Screened</div>
+            <div class="pipeline-stage-count">134</div>
+            <div class="pipeline-bar"><div class="pipeline-fill" style="width:54%;background:var(--blue-500);"></div></div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-label">Interviewed</div>
+            <div class="pipeline-stage-count">38</div>
+            <div class="pipeline-bar"><div class="pipeline-fill" style="width:26%;background:var(--amber-500);"></div></div>
+          </div>
+          <div class="pipeline-stage">
+            <div class="pipeline-stage-label">Offered</div>
+            <div class="pipeline-stage-count">9</div>
+            <div class="pipeline-bar"><div class="pipeline-fill" style="width:9%;background:var(--green-500);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two columns: Activity + Top candidates -->
+      <div class="grid-2">
+
+        <!-- Recent Activity -->
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <h3 style="font-size:15px;">Recent Activity</h3>
+            <a href="candidates.html" class="btn btn--ghost btn--sm">View all</a>
+          </div>
+          <div class="activity-list" id="activityFeed"></div>
+        </div>
+
+        <!-- Top Candidates -->
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <h3 style="font-size:15px;">Top AI Matches</h3>
+            <a href="candidates.html" class="btn btn--ghost btn--sm">See all</a>
+          </div>
+          <div id="topCandidates" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Open Jobs mini section -->
+      <div class="card" style="padding:20px;margin-top:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:15px;">Active Job Postings</h3>
+          <a href="jobs.html" class="btn btn--ghost btn--sm">Manage jobs</a>
+        </div>
+        <div id="miniJobs"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+/* ── Auth guard ─── */
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+
+/* ── Mount sidebar + topbar ─── */
+document.getElementById('sidebarMount').innerHTML = buildSidebar('dashboard.html');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Dashboard');
+initSidebarToggle();
+
+/* ── Personalise greeting with logged-in user ─── */
+(function() {
+  const u = getUser();
+  if (u) {
+    const h1 = document.querySelector('.page-header h1');
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    if (h1) h1.textContent = `${greet}, ${u.first_name} 👋`;
+  }
+})();
+
+/* ── Load real data from API ─── */
+async function loadDashboard() {
+  try {
+    const { stats, topCandidates, recentCandidates, recentJobs } = await Analytics.dashboard();
+
+    // Update stat cards
+    const vals = document.querySelectorAll('.stat-value');
+    if (vals[0]) vals[0].textContent = stats.totalCandidates;
+    if (vals[1]) vals[1].textContent = stats.shortlisted;
+    if (vals[2]) vals[2].textContent = stats.activeJobs;
+    if (vals[3]) vals[3].textContent = stats.timeToHire ? stats.timeToHire + 'd' : '—';
+
+    // Activity feed — use recent candidates as activity
+    const feed = document.getElementById('activityFeed');
+    if (feed && recentCandidates.length) {
+      const ICONS = { Selected:'✅', Shortlisted:'👤', Rejected:'❌', Pending:'📋' };
+      feed.innerHTML = recentCandidates.map(c => `
+        <div class="activity-item">
+          <div class="activity-icon" style="background:var(--blue-50);font-size:14px;">${ICONS[c.status] || '👤'}</div>
+          <div class="activity-content">
+            <div class="activity-text"><strong>${c.name}</strong> applied for ${c.role || 'a role'} — <span class="tag ${c.status==='Selected'?'tag--green':c.status==='Rejected'?'tag--red':c.status==='Shortlisted'?'tag--blue':'tag--amber'}" style="font-size:11px;">${c.status}</span></div>
+            <div class="activity-time">${fmtRelative(c.applied)}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Top candidates
+    const topEl = document.getElementById('topCandidates');
+    if (topEl && topCandidates.length) {
+      const COLORS = ['var(--blue-600)','#8b5cf6','#059669','#d97706','#ef4444'];
+      topEl.innerHTML = topCandidates.map((c, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-md);border:1px solid var(--slate-100);background:var(--slate-50);">
+          <div class="avatar" style="background:linear-gradient(135deg,${COLORS[i%COLORS.length]},${COLORS[i%COLORS.length]}cc);">${c.initials || c.name.slice(0,2).toUpperCase()}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13.5px;font-weight:600;color:var(--slate-800);">${c.name}</div>
+            <div style="font-size:12px;color:var(--slate-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.role || ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:14px;font-weight:700;color:var(--green-700);">${c.score}%</div>
+            <div style="font-size:10px;color:var(--slate-400);">match</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Mini jobs table
+    const jobsEl = document.getElementById('miniJobs');
+    if (jobsEl && recentJobs.length) {
+      jobsEl.innerHTML = `<div class="table-wrapper"><table>
+        <thead><tr><th>Job Title</th><th>Department</th><th>Applicants</th><th>Status</th><th></th></tr></thead>
+        <tbody>${recentJobs.map(j=>`
+          <tr>
+            <td style="font-weight:600;color:var(--slate-800);">${j.title}</td>
+            <td style="color:var(--slate-500);">${j.dept || '—'}</td>
+            <td>${j.applicants}</td>
+            <td>${statusTag(j.status)}</td>
+            <td><a href="candidates.html" class="btn btn--ghost btn--sm" style="padding:4px 10px;">View →</a></td>
+          </tr>`).join('')}
+        </tbody></table></div>`;
+    }
+
+  } catch (err) {
+    console.error('Dashboard load error:', err);
+    if (err.status === 401) Auth.logout();
+  }
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

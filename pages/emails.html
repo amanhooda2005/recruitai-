@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Email Center</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .email-grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+    @media(max-width:900px){ .email-grid { grid-template-columns: 1fr; } }
+    .template-list { display: flex; flex-direction: column; gap: 8px; }
+    .template-item { padding: 14px; border-radius: var(--radius-md); border: 1.5px solid var(--slate-200); cursor: pointer; transition: all .15s; background: white; }
+    .template-item:hover, .template-item.active { border-color: var(--blue-400); background: var(--blue-50); }
+    .template-item-name { font-size: 13.5px; font-weight: 600; color: var(--slate-800); margin-bottom: 3px; }
+    .template-item-desc { font-size: 12px; color: var(--slate-400); }
+    .compose-panel { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); overflow: hidden; }
+    .compose-header { padding: 18px 22px; border-bottom: 1px solid var(--slate-100); display: flex; align-items: center; justify-content: space-between; }
+    .compose-title { font-size: 15px; font-weight: 700; color: var(--slate-800); }
+    .compose-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+    .form-group2 { display: flex; flex-direction: column; gap: 6px; }
+    .form-label2 { font-size: 12px; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: .05em; }
+    .form-input2 { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; transition: border-color .15s; }
+    .form-input2:focus { border-color: var(--blue-400); }
+    .form-textarea2 { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 10px 12px; font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; resize: vertical; min-height: 180px; transition: border-color .15s; }
+    .form-textarea2:focus { border-color: var(--blue-400); }
+    .var-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+    .var-chip { background: var(--slate-100); color: var(--blue-700); font-size: 11px; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-weight: 500; font-family: monospace; }
+    .var-chip:hover { background: var(--blue-100); }
+    .log-table { width: 100%; border-collapse: collapse; }
+    .log-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--slate-400); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--slate-100); }
+    .log-table td { padding: 12px; border-bottom: 1px solid var(--slate-100); font-size: 13px; color: var(--slate-700); vertical-align: top; }
+    .log-table tr:last-child td { border-bottom: none; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    .dot-sent { background: var(--green-500); }
+    .dot-failed { background: var(--red-500); }
+    .dot-scheduled { background: var(--amber-500); }
+    .send-btn { background: var(--blue-600); color: white; border: none; border-radius: var(--radius-md); padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .send-btn:hover { background: var(--blue-700); }
+    .send-btn:disabled { opacity: .6; cursor: not-allowed; }
+    .candidate-select { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; background: white; width: 100%; }
+    .preview-box { background: var(--slate-50); border-radius: var(--radius-md); padding: 16px; font-size: 13.5px; color: var(--slate-700); white-space: pre-wrap; line-height: 1.7; border: 1px solid var(--slate-200); max-height: 300px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+  <main class="main-content">
+    <div id="topbarMount"></div>
+    <div class="page-body">
+
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">Email Center</h1>
+          <p style="font-size:13px;color:var(--slate-400);">Send templated emails to candidates — invite, reject, offer, and more.</p>
+        </div>
+        <button onclick="showTab('log')" class="btn btn--secondary btn--sm">📋 View Sent Log</button>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--slate-100);padding-bottom:0;">
+        <button class="tab-btn active" id="tab-compose" onclick="showTab('compose')">✉️ Compose</button>
+        <button class="tab-btn" id="tab-log" onclick="showTab('log')">📋 Sent Log</button>
+      </div>
+
+      <!-- Compose Tab -->
+      <div id="panel-compose">
+        <div class="email-grid">
+          <!-- Templates sidebar -->
+          <div>
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-400);margin-bottom:10px;">Templates</div>
+            <div class="template-list" id="templateList">
+              <div style="color:var(--slate-400);font-size:13px;">Loading…</div>
+            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--slate-100);">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-400);margin-bottom:8px;">Variable Tokens</div>
+              <div class="var-chips" id="varChips">
+                <span class="var-chip" onclick="insertVar('candidateName')">{{candidateName}}</span>
+                <span class="var-chip" onclick="insertVar('role')">{{role}}</span>
+                <span class="var-chip" onclick="insertVar('company')">{{company}}</span>
+                <span class="var-chip" onclick="insertVar('senderName')">{{senderName}}</span>
+                <span class="var-chip" onclick="insertVar('datetime')">{{datetime}}</span>
+                <span class="var-chip" onclick="insertVar('meetingLink')">{{meetingLink}}</span>
+                <span class="var-chip" onclick="insertVar('salary')">{{salary}}</span>
+                <span class="var-chip" onclick="insertVar('startDate')">{{startDate}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compose panel -->
+          <div class="compose-panel">
+            <div class="compose-header">
+              <span class="compose-title" id="composePanelTitle">✉️ New Email</span>
+              <div style="display:flex;gap:8px;">
+                <button onclick="previewEmail()" class="btn btn--secondary btn--sm">👁 Preview</button>
+                <button onclick="sendEmail()" class="send-btn" id="sendBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Send Email
+                </button>
+              </div>
+            </div>
+            <div class="compose-body">
+              <div class="form-group2">
+                <label class="form-label2">To — Candidate</label>
+                <select class="candidate-select" id="candidateSelect">
+                  <option value="">Select a candidate…</option>
+                </select>
+              </div>
+              <div class="form-group2">
+                <label class="form-label2">Subject</label>
+                <input class="form-input2" id="emailSubject" placeholder="Email subject…">
+              </div>
+              <div class="form-group2">
+                <label class="form-label2">Message Body</label>
+                <textarea class="form-textarea2" id="emailBody" placeholder="Email body…"></textarea>
+              </div>
+              <!-- Preview box -->
+              <div id="previewSection" style="display:none;">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-400);margin-bottom:8px;">Preview (filled)</div>
+                <div class="preview-box" id="previewBox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sent Log Tab -->
+      <div id="panel-log" style="display:none;">
+        <div style="background:white;border-radius:var(--radius-xl);border:1px solid var(--slate-200);overflow:hidden;">
+          <div style="padding:18px 22px;border-bottom:1px solid var(--slate-100);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:15px;font-weight:700;color:var(--slate-800);">Sent Emails</span>
+            <span id="emailCount" style="font-size:13px;color:var(--slate-400);"></span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="log-table">
+              <thead><tr>
+                <th>To</th><th>Subject</th><th>Template</th><th>Status</th><th>Sent</th><th></th>
+              </tr></thead>
+              <tbody id="emailLog"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--slate-400);">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Email Center');
+initSidebarToggle();
+
+let templates = [];
+let candidates = [];
+let activeTemplateId = null;
+
+// Tab helpers
+function showTab(name) {
+  ['compose','log'].forEach(t => {
+    document.getElementById('panel-'+t).style.display = t===name?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  if (name === 'log') loadLog();
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.style.cssText='padding:8px 16px;border:none;background:none;font-size:14px;font-weight:500;color:var(--slate-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;');
+document.getElementById('tab-compose').style.cssText+='color:var(--blue-600);border-bottom-color:var(--blue-600);font-weight:600;';
+
+async function init() {
+  // Load templates
+  const td = await apiFetch('/emails/templates');
+  templates = td.templates;
+  document.getElementById('templateList').innerHTML = templates.map(t => `
+    <div class="template-item" onclick="selectTemplate('${t.id}')" id="tmpl-${t.id}">
+      <div class="template-item-name">${t.name}</div>
+    </div>`).join('');
+
+  // Load candidates
+  const cd = await Candidates.list({ limit: 200 });
+  candidates = cd.candidates;
+  document.getElementById('candidateSelect').innerHTML =
+    `<option value="">Select a candidate…</option>` +
+    candidates.filter(c => c.email).map(c =>
+      `<option value="${c.id}">${c.name} — ${c.email}</option>`
+    ).join('');
+}
+
+function selectTemplate(id) {
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+  activeTemplateId = id;
+  document.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('tmpl-'+id).classList.add('active');
+  document.getElementById('emailSubject').value = t.subject;
+  document.getElementById('emailBody').value    = t.body;
+  document.getElementById('composePanelTitle').textContent = '✉️ ' + t.name;
+  document.getElementById('previewSection').style.display = 'none';
+}
+
+function insertVar(varName) {
+  const el = document.getElementById('emailBody');
+  const start = el.selectionStart, end = el.selectionEnd;
+  el.value = el.value.slice(0, start) + `{{${varName}}}` + el.value.slice(end);
+  el.focus();
+  el.selectionStart = el.selectionEnd = start + varName.length + 4;
+}
+
+function previewEmail() {
+  const candidateId = document.getElementById('candidateSelect').value;
+  const candidate   = candidates.find(c => c.id === candidateId);
+  const body        = document.getElementById('emailBody').value;
+  let preview       = body;
+  if (candidate) {
+    preview = preview
+      .replace(/{{candidateName}}/g, candidate.name)
+      .replace(/{{role}}/g, candidate.role || 'the position')
+      .replace(/{{company}}/g, 'Your Company');
+  }
+  document.getElementById('previewBox').textContent = preview;
+  document.getElementById('previewSection').style.display = 'block';
+}
+
+async function sendEmail() {
+  const candidateId = document.getElementById('candidateSelect').value;
+  const subject     = document.getElementById('emailSubject').value.trim();
+  const body        = document.getElementById('emailBody').value.trim();
+
+  if (!candidateId) return showToast('Select a candidate first', 'error');
+  if (!subject)     return showToast('Subject is required', 'error');
+  if (!body)        return showToast('Email body is required', 'error');
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  try {
+    await apiFetch('/emails/send', {
+      method: 'POST',
+      body: JSON.stringify({ candidateId, templateId: activeTemplateId, customSubject: subject, customBody: body })
+    });
+    showToast('Email sent successfully! ✉️');
+    document.getElementById('emailSubject').value = '';
+    document.getElementById('emailBody').value    = '';
+    activeTemplateId = null;
+    document.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Email';
+  }
+}
+
+async function loadLog() {
+  try {
+    const { emails, total } = await apiFetch('/emails');
+    document.getElementById('emailCount').textContent = `${total} emails sent`;
+    const tbody = document.getElementById('emailLog');
+    if (!emails.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--slate-400);">No emails sent yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = emails.map(e => `
+      <tr>
+        <td><strong>${e.candidateName || '—'}</strong><br><span style="font-size:11px;color:var(--slate-400);">${e.to}</span></td>
+        <td style="max-width:240px;">${e.subject}</td>
+        <td>${e.templateId ? `<span style="background:var(--blue-50);color:var(--blue-700);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">${e.templateId.replace('_',' ')}</span>` : '—'}</td>
+        <td><span class="status-dot dot-${e.status}"></span>${e.status}</td>
+        <td style="color:var(--slate-400);font-size:12px;">${fmtRelative(e.created_at)}</td>
+        <td><button onclick="deleteEmail('${e.id}')" style="border:none;background:none;color:var(--red-400);cursor:pointer;font-size:12px;">Delete</button></td>
+      </tr>`).join('');
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function deleteEmail(id) {
+  if (!confirm('Delete this email record?')) return;
+  await apiFetch('/emails/'+id, { method:'DELETE' });
+  loadLog();
+}
+
+init();
+</script>
+</body>
+</html>

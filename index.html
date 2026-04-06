@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Smart Recruitment Platform</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<header>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <span class="logo-text">RecruitAI</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#about">About</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="pages/auth.html" class="btn btn--secondary btn--sm">Log in</a>
+        <a href="pages/auth.html" class="btn btn--primary btn--sm">Get started</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- ── Hero ───────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <!-- Left -->
+      <div class="fade-up">
+        <div class="hero-eyebrow">
+          <span class="dot"></span>
+          Now with AI-Powered Matching
+        </div>
+        <h1>Hire <em>smarter</em>,<br>not harder.</h1>
+        <p class="hero-sub">RecruitAI automates resume screening, ranks candidates intelligently, and gives your team real-time analytics — so you can focus on people, not paperwork.</p>
+        <div class="hero-cta">
+          <a href="pages/auth.html" class="btn btn--primary btn--lg">Start for free</a>
+          <a href="pages/dashboard.html" class="btn btn--secondary btn--lg">View dashboard →</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-value">3.2×</div>
+            <div class="hero-stat-label">Faster hiring</div>
+          </div>
+          <div>
+            <div class="hero-stat-value">94%</div>
+            <div class="hero-stat-label">Match accuracy</div>
+          </div>
+          <div>
+            <div class="hero-stat-value">10k+</div>
+            <div class="hero-stat-label">Companies trust us</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — visual card -->
+      <div class="hero-visual fade-up fade-up-2">
+        <div class="hero-card">
+          <div class="hero-card-header">
+            <div style="font-size:13px;font-weight:600;color:var(--slate-700);">Hiring Pipeline · Q2 2025</div>
+            <div class="hero-card-dots">
+              <span style="background:#ef4444"></span>
+              <span style="background:#f59e0b"></span>
+              <span style="background:#22c55e"></span>
+            </div>
+          </div>
+          <div class="hero-card-body">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <div>
+                <div style="font-size:28px;font-weight:700;font-family:var(--font-display);color:var(--slate-900);">247</div>
+                <div style="font-size:12px;color:var(--slate-500);">Active candidates</div>
+              </div>
+              <span class="tag tag--green">↑ 18% this week</span>
+            </div>
+
+            <div class="hero-mini-stat">
+              <div>
+                <div class="hero-mini-label">AI Screened</div>
+                <div class="hero-mini-bar" style="width:140px;"><div class="hero-mini-fill" style="width:88%;background:var(--blue-500);"></div></div>
+              </div>
+              <div class="hero-mini-value">88%</div>
+            </div>
+
+            <div class="hero-mini-stat">
+              <div>
+                <div class="hero-mini-label">Shortlisted</div>
+                <div class="hero-mini-bar" style="width:140px;"><div class="hero-mini-fill" style="width:62%;background:var(--green-500);"></div></div>
+              </div>
+              <div class="hero-mini-value">62%</div>
+            </div>
+
+            <div class="hero-mini-stat">
+              <div>
+                <div class="hero-mini-label">Interviewed</div>
+                <div class="hero-mini-bar" style="width:140px;"><div class="hero-mini-fill" style="width:34%;background:var(--amber-500);"></div></div>
+              </div>
+              <div class="hero-mini-value">34%</div>
+            </div>
+
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--slate-100);">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:10px;">Recent matches</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;background:var(--slate-50);padding:8px 10px;border-radius:8px;">
+                  <div class="avatar" style="width:26px;height:26px;font-size:10px;">AK</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:12px;font-weight:600;color:var(--slate-800);">Arjun Kapoor</div>
+                    <div style="font-size:11px;color:var(--slate-400);">Senior Frontend Engineer</div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:var(--green-700);">96%</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;background:var(--slate-50);padding:8px 10px;border-radius:8px;">
+                  <div class="avatar" style="width:26px;height:26px;font-size:10px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);">PM</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:12px;font-weight:600;color:var(--slate-800);">Priya Mehta</div>
+                    <div style="font-size:11px;color:var(--slate-400);">Product Manager</div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:var(--green-700);">91%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating badge -->
+        <div style="position:absolute;bottom:-16px;right:-12px;background:white;border-radius:12px;box-shadow:var(--shadow-lg);border:1px solid var(--slate-200);padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green-500);"></div>
+          <span style="font-size:12px;font-weight:600;color:var(--slate-700);">AI screening complete</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Logos ───────────────────────────────────────────────── -->
+<section style="padding:40px 0;border-top:1px solid var(--slate-100);border-bottom:1px solid var(--slate-100);background:var(--slate-50);">
+  <div class="container">
+    <p style="text-align:center;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-400);margin-bottom:24px;">Trusted by teams at</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap;opacity:.5;">
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Synapse</span>
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Lattice</span>
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Orbit</span>
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Meridian</span>
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Prism</span>
+      <span style="font-size:18px;font-weight:800;color:var(--slate-700);font-family:var(--font-display);">Apex</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────── -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need to hire better</h2>
+      <p class="section-subtitle">From the first application to the offer letter — RecruitAI handles every step of your hiring workflow.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--blue-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h3>AI Resume Screening</h3>
+        <p>Our model reads, parses, and scores every resume against your job criteria in seconds — eliminating hours of manual review.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--green-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Candidate Matching</h3>
+        <p>Smart ranking compares candidates across skills, experience, and culture fit — surfacing your top matches instantly.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--amber-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--amber-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h3>Hiring Analytics</h3>
+        <p>Track time-to-hire, source quality, pipeline velocity, and diversity metrics with live dashboards and custom reports.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--blue-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Automated Scheduling</h3>
+        <p>Send interview invites, sync calendars, and collect availability — all without a single email chain.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--green-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Collaborative Evaluation</h3>
+        <p>Share scorecards, leave structured feedback, and align hiring decisions across distributed teams.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--amber-50);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--amber-700)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Job Board Integrations</h3>
+        <p>Post to LinkedIn, Indeed, and Glassdoor with one click. Ingest applications automatically into your pipeline.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ────────────────────────────────────────── -->
+<section class="section" id="how-it-works" style="background:var(--slate-50);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">From job post to hire<br>in three steps</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;align-items:start;">
+      <div style="text-align:center;padding:32px 24px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--blue-600);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:var(--font-display);font-weight:700;margin:0 auto 20px;">1</div>
+        <h3 style="font-size:18px;margin-bottom:10px;">Post your job</h3>
+        <p style="font-size:14px;">Fill out the role details, required skills, and experience level. Publish to all boards in one click.</p>
+      </div>
+      <div style="text-align:center;padding:32px 24px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--blue-600);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:var(--font-display);font-weight:700;margin:0 auto 20px;">2</div>
+        <h3 style="font-size:18px;margin-bottom:10px;">AI does the work</h3>
+        <p style="font-size:14px;">Every application is screened and scored automatically. A ranked shortlist appears in your dashboard.</p>
+      </div>
+      <div style="text-align:center;padding:32px 24px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--blue-600);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:var(--font-display);font-weight:700;margin:0 auto 20px;">3</div>
+        <h3 style="font-size:18px;margin-bottom:10px;">Interview &amp; hire</h3>
+        <p style="font-size:14px;">Schedule interviews, collect team feedback, and send offers — all from one place.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────── -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="cta-banner">
+      <div>
+        <h2>Ready to transform your hiring?</h2>
+        <p>Join 10,000+ companies that hire smarter with RecruitAI.</p>
+      </div>
+      <div class="cta-banner-actions">
+        <a href="pages/auth.html" class="btn btn--white btn--lg">Start free trial</a>
+        <a href="#features" class="btn btn--outline-white btn--lg">Learn more</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <div class="logo-icon" style="width:30px;height:30px;background:var(--blue-600);border-radius:7px;display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <span class="logo-text" style="font-family:var(--font-display);font-size:16px;font-weight:600;color:white;">RecruitAI</span>
+        </div>
+        <p>The intelligent hiring platform for modern talent teams.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#">Features</a>
+        <a href="#">Integrations</a>
+        <a href="#">Pricing</a>
+        <a href="#">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 RecruitAI, Inc. All rights reserved.</span>
+      <span>Built with care for people teams everywhere.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

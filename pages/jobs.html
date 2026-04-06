@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Job Postings</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .jobs-layout { display: grid; grid-template-columns: 1fr 420px; gap: 24px; align-items: start; }
+    .dept-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--blue-50); color: var(--blue-700); font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+    .skill-tag { background: var(--slate-100); color: var(--slate-600); font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 99px; }
+    .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--slate-400); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--slate-100); }
+    .skills-input-area { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px; border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); min-height: 46px; align-items: center; cursor: text; transition: all var(--transition); }
+    .skills-input-area:focus-within { border-color: var(--blue-400); box-shadow: 0 0 0 3px rgba(79,127,255,.1); }
+    .skills-input-area input { border: none; outline: none; font-size: 13.5px; color: var(--slate-700); font-family: var(--font-body); min-width: 80px; flex: 1; }
+    .skill-pill { display: inline-flex; align-items: center; gap: 5px; background: var(--blue-100); color: var(--blue-800); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+    .skill-pill button { background: none; border: none; cursor: pointer; color: var(--blue-500); display: flex; padding: 0; font-size: 14px; line-height: 1; }
+    .char-count { font-size: 12px; color: var(--slate-400); text-align: right; margin-top: 4px; }
+    @media (max-width: 960px) { .jobs-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+
+  <main class="main-content">
+    <div id="topbarMount"></div>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>Job Postings</h1>
+        <p>Create new job roles and manage your active listings.</p>
+      </div>
+
+      <div class="jobs-layout">
+
+        <!-- Left: Job list -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:14px;font-weight:600;color:var(--slate-700);">Active Postings <span id="jobCount" style="color:var(--slate-400);font-weight:400;"></span></div>
+            <div class="search-input-wrap" style="max-width:220px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search jobs…" oninput="filterJobs(this.value)">
+            </div>
+          </div>
+          <div id="jobsList"></div>
+        </div>
+
+        <!-- Right: Create form -->
+        <div class="card" style="padding:24px;position:sticky;top:80px;">
+          <h3 style="font-size:16px;margin-bottom:20px;">Post a New Role</h3>
+
+          <form onsubmit="handlePostJob(event)" novalidate>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+              <div>
+                <div class="form-section-title">Basic Info</div>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div class="form-group">
+                    <label class="form-label">Job Title *</label>
+                    <input class="form-input" id="jTitle" placeholder="e.g. Senior Backend Engineer" required>
+                  </div>
+                  <div class="grid-2" style="gap:10px;">
+                    <div class="form-group">
+                      <label class="form-label">Department</label>
+                      <select class="form-select" id="jDept">
+                        <option>Engineering</option>
+                        <option>Product</option>
+                        <option>Design</option>
+                        <option>Analytics</option>
+                        <option>Marketing</option>
+                        <option>Sales</option>
+                        <option>Operations</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Location</label>
+                      <input class="form-input" id="jLocation" placeholder="Remote / City">
+                    </div>
+                  </div>
+                  <div class="grid-2" style="gap:10px;">
+                    <div class="form-group">
+                      <label class="form-label">Job Type</label>
+                      <select class="form-select" id="jType">
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Internship</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Experience</label>
+                      <select class="form-select" id="jExp">
+                        <option>0–1 years</option>
+                        <option>1–3 years</option>
+                        <option>3–5 years</option>
+                        <option>5–8 years</option>
+                        <option>8+ years</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Salary Range</label>
+                    <input class="form-input" id="jSalary" placeholder="e.g. ₹18–25 LPA or $80k–100k">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="form-section-title">Description</div>
+                <div class="form-group">
+                  <label class="form-label">Job Description *</label>
+                  <textarea class="form-textarea" id="jDesc" rows="5" placeholder="Describe the role, responsibilities, and what success looks like…" oninput="updateCharCount(this)" required style="min-height:120px;"></textarea>
+                  <div class="char-count"><span id="charCount">0</span> / 2000 characters</div>
+                </div>
+              </div>
+
+              <div>
+                <div class="form-section-title">Requirements</div>
+                <div class="form-group">
+                  <label class="form-label">Required Skills</label>
+                  <div class="skills-input-area" id="skillsArea" onclick="document.getElementById('skillInput').focus()">
+                    <input type="text" id="skillInput" placeholder="Type a skill and press Enter" onkeydown="handleSkillKey(event)">
+                  </div>
+                  <div style="font-size:12px;color:var(--slate-400);margin-top:4px;">Press Enter or comma to add</div>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;padding-top:4px;">
+                <button type="button" class="btn btn--secondary" style="flex:1;justify-content:center;" onclick="resetForm()">Clear</button>
+                <button type="submit" class="btn btn--primary" style="flex:2;justify-content:center;" id="submitBtn">Post Job</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+
+document.getElementById('sidebarMount').innerHTML = buildSidebar('jobs.html');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Job Postings');
+initSidebarToggle();
+
+// Hide the post-job form for roles that can't create jobs
+if (!can('jobs:create')) {
+  document.querySelector('.card')?.style && (document.querySelector('.card').style.display = 'none');
+}
+
+/* ── State ─── */
+let skills = [];
+let jobs = [];
+let filteredJobs = [];
+
+/* ── Load jobs from API ─── */
+async function loadJobs() {
+  try {
+    const { search } = getCurrentFilters();
+    const params = {};
+    if (search) params.search = search;
+    const data = await Jobs.list(params);
+    jobs = data.jobs;
+    filteredJobs = [...jobs];
+    renderJobs();
+  } catch (err) {
+    if (err.status === 401) Auth.logout();
+    console.error('Load jobs error:', err);
+  }
+}
+
+function getCurrentFilters() {
+  return { search: document.getElementById('jobSearch')?.value || '' };
+}
+
+
+/* ── Render jobs ─── */
+function renderJobs() {
+  document.getElementById('jobCount').textContent = `(${filteredJobs.length})`;
+  const el = document.getElementById('jobsList');
+  if (!filteredJobs.length) {
+    el.innerHTML = '<div class="empty-state"><p>No jobs match your search.</p></div>';
+    return;
+  }
+  el.innerHTML = filteredJobs.map(j => `
+    <div class="job-card" style="margin-bottom:12px;">
+      <div class="job-card-top">
+        <div>
+          <h3>${j.title}</h3>
+          <div class="dept">${j.dept} · ${j.location}</div>
+        </div>
+        ${statusTag(j.status)}
+      </div>
+      <div class="job-meta">
+        <div class="job-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          ${j.type}
+        </div>
+        <div class="job-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${j.exp}
+        </div>
+        <div class="job-meta-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
+          ${j.salary}
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;">
+        ${j.skills.slice(0,4).map(s=>`<span class="skill-tag">${s}</span>`).join('')}
+      </div>
+      <div class="job-card-footer">
+        <span style="font-size:12px;color:var(--slate-400);">Posted ${fmtDate(j.posted)} · <strong style="color:var(--slate-600);">${j.applicants}</strong> applicants</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn--secondary btn--sm" onclick="editJob('${j.id}')" ${!can('jobs:update')?'style="display:none"':''}>Edit</button>
+          <button class="btn btn--primary btn--sm" onclick="window.location='candidates.html'">View →</button>
+          ${can('jobs:delete') ? `<button class="btn btn--ghost btn--sm" onclick="deleteJob('${j.id}')" style="color:var(--red-400);">Delete</button>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Skills pills ─── */
+function handleSkillKey(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    addSkill(e.target.value.replace(',','').trim());
+    e.target.value = '';
+  }
+}
+function addSkill(skill) {
+  if (!skill || skills.includes(skill)) return;
+  skills.push(skill);
+  renderSkills();
+}
+function removeSkill(skill) {
+  skills = skills.filter(s=>s!==skill);
+  renderSkills();
+}
+function renderSkills() {
+  const area = document.getElementById('skillsArea');
+  const inp  = document.getElementById('skillInput');
+  area.innerHTML = '';
+  skills.forEach(s => {
+    const pill = document.createElement('span');
+    pill.className = 'skill-pill';
+    pill.innerHTML = `${s}<button type="button" onclick="removeSkill('${s}')">×</button>`;
+    area.appendChild(pill);
+  });
+  area.appendChild(inp);
+}
+
+/* ── Char count ─── */
+function updateCharCount(el) {
+  document.getElementById('charCount').textContent = el.value.length;
+}
+
+
+async function handlePostJob(e) {
+  e.preventDefault();
+  const title = document.getElementById('jTitle').value.trim();
+  const desc  = document.getElementById('jDesc').value.trim();
+  if (!title || !desc) {
+    alert('Please fill in the required fields (Title and Description).');
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Posting…'; btn.disabled = true;
+
+  try {
+    await Jobs.create({
+      title, description: desc,
+      dept:     document.getElementById('jDept').value,
+      location: document.getElementById('jLocation').value || 'Remote',
+      type:     document.getElementById('jType').value,
+      exp:      document.getElementById('jExp').value,
+      salary:   document.getElementById('jSalary').value || 'Competitive',
+      skills:   [...skills],
+    });
+    showToast('Job posted successfully!');
+    await loadJobs();
+    resetForm();
+    btn.textContent = '✓ Posted!';
+    setTimeout(() => { btn.textContent = 'Post Job'; btn.disabled = false; }, 1500);
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.textContent = 'Post Job'; btn.disabled = false;
+  }
+}
+
+function resetForm() {
+  ['jTitle','jDesc','jLocation','jSalary'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('charCount').textContent = '0';
+  skills = [];
+  renderSkills();
+}
+
+function editJob(id) {
+  const job = jobs.find(j=>j.id===id);
+  if (!job) return;
+  document.getElementById('jTitle').value    = job.title;
+  document.getElementById('jDept').value     = job.dept;
+  document.getElementById('jLocation').value = job.location;
+  document.getElementById('jType').value     = job.type;
+  document.getElementById('jExp').value      = job.exp;
+  document.getElementById('jSalary').value   = job.salary;
+  skills = [...job.skills];
+  renderSkills();
+  document.querySelector('.card').scrollIntoView({ behavior:'smooth' });
+}
+
+async function deleteJob(id) {
+  if (!confirm('Delete this job posting?')) return;
+  try {
+    await Jobs.delete(id);
+    showToast('Job deleted');
+    await loadJobs();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+function filterJobs() { loadJobs(); }
+
+/* ── Boot ─── */
+loadJobs();
+</script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Interviews</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .interviews-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+    @media(max-width:1000px){ .interviews-grid { grid-template-columns: 1fr; } }
+    /* Calendar */
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+    .cal-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; margin-bottom: 6px; }
+    .cal-day-label { text-align: center; font-size: 11px; font-weight: 700; color: var(--slate-400); text-transform: uppercase; padding: 4px 0; }
+    .cal-cell { min-height: 80px; border-radius: var(--radius-md); border: 1px solid var(--slate-100); padding: 6px; background: white; position: relative; cursor: pointer; transition: border-color .15s; }
+    .cal-cell:hover { border-color: var(--blue-300); }
+    .cal-cell.today { border-color: var(--blue-400); background: var(--blue-50); }
+    .cal-cell.other-month { opacity: .4; background: var(--slate-50); }
+    .cal-date-num { font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 4px; }
+    .cal-date-num.today-num { background: var(--blue-600); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .cal-event { font-size: 10px; background: var(--blue-500); color: white; border-radius: 3px; padding: 1px 5px; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cal-event.completed { background: var(--green-600); }
+    .cal-event.cancelled { background: var(--slate-400); }
+    /* Schedule form */
+    .schedule-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); }
+    .schedule-header { padding: 16px 20px; border-bottom: 1px solid var(--slate-100); }
+    .schedule-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select, .field textarea {
+      border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 8px 12px;
+      font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; background: white;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue-400); }
+    /* Interview card list */
+    .iv-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: 14px 16px; margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start; }
+    .iv-time-col { text-align: center; min-width: 52px; }
+    .iv-time { font-size: 15px; font-weight: 800; color: var(--slate-900); font-family: var(--font-display); }
+    .iv-date { font-size: 11px; color: var(--slate-400); }
+    .iv-info { flex: 1; min-width: 0; }
+    .iv-name { font-size: 14px; font-weight: 600; color: var(--slate-900); margin-bottom: 2px; }
+    .iv-role { font-size: 12px; color: var(--slate-400); margin-bottom: 6px; }
+    .iv-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .iv-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; background: var(--slate-100); color: var(--slate-600); }
+    .iv-badge.video { background: var(--blue-50); color: var(--blue-700); }
+    .iv-badge.phone { background: var(--green-50); color: var(--green-700); }
+    .status-scheduled { color: var(--blue-600); }
+    .status-completed { color: var(--green-600); }
+    .status-cancelled { color: var(--slate-400); }
+    .round-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--blue-600); color: white; border-radius: 50%; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+    .feedback-btn { border: 1.5px solid var(--slate-200); background: white; border-radius: var(--radius-md); padding: 5px 10px; font-size: 12px; cursor: pointer; color: var(--slate-600); }
+    .feedback-btn:hover { border-color: var(--blue-400); color: var(--blue-600); }
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: white; border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--slate-800); }
+    .star-row { display: flex; gap: 6px; }
+    .star { font-size: 24px; cursor: pointer; transition: transform .1s; }
+    .star:hover { transform: scale(1.2); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+  <main class="main-content">
+    <div id="topbarMount"></div>
+    <div class="page-body">
+
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">Interview Scheduler</h1>
+          <p style="font-size:13px;color:var(--slate-400);">Schedule, track, and manage all candidate interviews.</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="setView('list')" id="btn-list" class="btn btn--secondary btn--sm">📋 List</button>
+          <button onclick="setView('calendar')" id="btn-cal" class="btn btn--primary btn--sm">📅 Calendar</button>
+        </div>
+      </div>
+
+      <div class="interviews-grid">
+        <!-- Left: List or Calendar -->
+        <div>
+          <!-- List View -->
+          <div id="listView">
+            <div style="background:white;border-radius:var(--radius-xl);border:1px solid var(--slate-200);overflow:hidden;">
+              <div style="padding:16px 20px;border-bottom:1px solid var(--slate-100);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;font-weight:700;color:var(--slate-800);">All Interviews</span>
+                <div style="display:flex;gap:8px;">
+                  <select id="statusFilter" onchange="loadInterviews()" style="border:1.5px solid var(--slate-200);border-radius:var(--radius-md);padding:5px 10px;font-size:13px;background:white;">
+                    <option value="">All statuses</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+              <div style="padding:16px;" id="interviewList"><div style="text-align:center;padding:32px;color:var(--slate-400);">Loading…</div></div>
+            </div>
+          </div>
+          <!-- Calendar View -->
+          <div id="calView" style="display:none;">
+            <div style="background:white;border-radius:var(--radius-xl);border:1px solid var(--slate-200);padding:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <button onclick="prevMonth()" style="border:1.5px solid var(--slate-200);background:white;border-radius:var(--radius-md);padding:6px 12px;cursor:pointer;">‹</button>
+                <span id="calMonthLabel" style="font-size:16px;font-weight:700;color:var(--slate-800);"></span>
+                <button onclick="nextMonth()" style="border:1.5px solid var(--slate-200);background:white;border-radius:var(--radius-md);padding:6px 12px;cursor:pointer;">›</button>
+              </div>
+              <div class="cal-header">
+                <div class="cal-day-label">Sun</div><div class="cal-day-label">Mon</div><div class="cal-day-label">Tue</div>
+                <div class="cal-day-label">Wed</div><div class="cal-day-label">Thu</div><div class="cal-day-label">Fri</div><div class="cal-day-label">Sat</div>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Schedule form -->
+        <div class="schedule-card">
+          <div class="schedule-header">
+            <div style="font-size:15px;font-weight:700;color:var(--slate-800);">📅 Schedule Interview</div>
+          </div>
+          <div class="schedule-body">
+            <div class="field">
+              <label>Candidate *</label>
+              <select id="ivCandidate"><option value="">Select candidate…</option></select>
+            </div>
+            <div class="field">
+              <label>Date & Time *</label>
+              <input type="datetime-local" id="ivDateTime">
+            </div>
+            <div class="field">
+              <label>Duration (minutes)</label>
+              <select id="ivDuration">
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60" selected>60 min</option>
+                <option value="90">90 min</option>
+                <option value="120">2 hours</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Format</label>
+              <select id="ivFormat">
+                <option>Video Call</option>
+                <option>Phone Call</option>
+                <option>In Person</option>
+                <option>Technical Test</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Meeting Link / Location</label>
+              <input type="text" id="ivLink" placeholder="https://meet.google.com/… or office address">
+            </div>
+            <div class="field">
+              <label>Interview Round</label>
+              <select id="ivRound">
+                <option value="1">Round 1 — Screening</option>
+                <option value="2">Round 2 — Technical</option>
+                <option value="3">Round 3 — Culture Fit</option>
+                <option value="4">Round 4 — Final</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Interviewers (comma-separated)</label>
+              <input type="text" id="ivInterviewers" placeholder="Alice, Bob…">
+            </div>
+            <div class="field">
+              <label>Notes</label>
+              <textarea id="ivNotes" rows="2" placeholder="Preparation notes…"></textarea>
+            </div>
+            <button onclick="scheduleInterview()" class="btn btn--primary" style="width:100%;justify-content:center;" id="scheduleBtn">Schedule Interview</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">📝 Interview Feedback</div>
+    <input type="hidden" id="fbInterviewId">
+    <div class="field"><label>Overall Rating</label>
+      <div class="star-row" id="starRow">
+        <span class="star" onclick="setRating(1)">☆</span>
+        <span class="star" onclick="setRating(2)">☆</span>
+        <span class="star" onclick="setRating(3)">☆</span>
+        <span class="star" onclick="setRating(4)">☆</span>
+        <span class="star" onclick="setRating(5)">☆</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Recommendation</label>
+      <select id="fbRec">
+        <option>Strong Hire</option><option>Hire</option>
+        <option>Maybe</option><option>No Hire</option>
+      </select>
+    </div>
+    <div class="field"><label>Feedback Notes</label>
+      <textarea id="fbNotes" rows="4" placeholder="Key observations, strengths, concerns…" style="border:1.5px solid var(--slate-200);border-radius:var(--radius-md);padding:8px 12px;font-family:inherit;font-size:13.5px;outline:none;resize:vertical;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="submitFeedback()" class="btn btn--primary" style="flex:1;justify-content:center;">Save Feedback</button>
+      <button onclick="document.getElementById('feedbackModal').style.display='none'" class="btn btn--secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Interviews');
+initSidebarToggle();
+
+let allInterviews = [];
+let currentRating = 0;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+async function init() {
+  // Hide scheduling form for roles that can't create interviews
+  if (!can('interviews:create')) {
+    const scheduleCard = document.querySelector('.schedule-card');
+    if (scheduleCard) scheduleCard.style.display = 'none';
+    // Make grid full-width
+    const grid = document.querySelector('.interviews-grid');
+    if (grid) grid.style.gridTemplateColumns = '1fr';
+  }
+
+  // Set default datetime to next business hour
+  const dt = new Date();
+  dt.setDate(dt.getDate() + 1);
+  dt.setHours(10, 0, 0, 0);
+  document.getElementById('ivDateTime').value = dt.toISOString().slice(0,16);
+
+  // Load candidates
+  const { candidates } = await Candidates.list({ limit: 200 });
+  document.getElementById('ivCandidate').innerHTML =
+    `<option value="">Select candidate…</option>` +
+    candidates.map(c => `<option value="${c.id}">${c.name} — ${c.role || 'Candidate'}</option>`).join('');
+
+  await loadInterviews();
+  renderCalendar();
+}
+
+function setView(v) {
+  document.getElementById('listView').style.display = v==='list'?'block':'none';
+  document.getElementById('calView').style.display  = v==='calendar'?'block':'none';
+  document.getElementById('btn-list').className = 'btn btn--sm ' + (v==='list'?'btn--primary':'btn--secondary');
+  document.getElementById('btn-cal').className  = 'btn btn--sm ' + (v==='calendar'?'btn--primary':'btn--secondary');
+  if (v==='calendar') renderCalendar();
+}
+
+async function loadInterviews() {
+  const status = document.getElementById('statusFilter').value;
+  const params = status ? `?status=${status}` : '';
+  const { interviews } = await apiFetch('/interviews' + params);
+  allInterviews = interviews;
+
+  const el = document.getElementById('interviewList');
+  if (!interviews.length) {
+    el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--slate-400);">No interviews found. Schedule one →</div>';
+    return;
+  }
+
+  el.innerHTML = interviews.map(iv => {
+    const dt   = new Date(iv.scheduledAt);
+    const time = dt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    const date = dt.toLocaleDateString([], { month:'short', day:'numeric' });
+    const fmtBadge = iv.format === 'Video Call' ? 'video' : iv.format === 'Phone Call' ? 'phone' : '';
+    return `
+    <div class="iv-card">
+      <div class="iv-time-col">
+        <div class="iv-time">${time}</div>
+        <div class="iv-date">${date}</div>
+        <div class="round-badge">${iv.round||1}</div>
+      </div>
+      <div class="iv-info">
+        <div class="iv-name">${iv.candidateName}</div>
+        <div class="iv-role">${iv.jobTitle || iv.candidateRole || ''}</div>
+        <div class="iv-meta">
+          <span class="iv-badge ${fmtBadge}">${iv.format}</span>
+          <span class="iv-badge">${iv.duration} min</span>
+          <span class="iv-badge status-${iv.status}">${iv.status}</span>
+          ${iv.rating ? `<span class="iv-badge">${'⭐'.repeat(iv.rating)}</span>` : ''}
+        </div>
+        ${iv.meetingLink ? `<div style="margin-top:6px;"><a href="${iv.meetingLink}" target="_blank" style="font-size:12px;color:var(--blue-600);">🔗 Join meeting</a></div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        ${iv.status === 'scheduled' ? `<button class="feedback-btn" onclick="openFeedback('${iv.id}')">Add Feedback</button>` : ''}
+        ${iv.status === 'scheduled' ? `<button class="feedback-btn" style="color:var(--red-400);" onclick="cancelInterview('${iv.id}')">Cancel</button>` : ''}
+        ${iv.feedback ? `<div style="font-size:11px;color:var(--green-700);font-weight:600;">✓ Feedback</div>` : ''}
+      </div>
+    </div>`}).join('');
+}
+
+async function scheduleInterview() {
+  const candidateId = document.getElementById('ivCandidate').value;
+  const scheduledAt = document.getElementById('ivDateTime').value;
+  if (!candidateId || !scheduledAt) return showToast('Select candidate and date/time', 'error');
+
+  const btn = document.getElementById('scheduleBtn');
+  btn.disabled = true; btn.textContent = 'Scheduling…';
+  try {
+    await apiFetch('/interviews', { method:'POST', body: JSON.stringify({
+      candidateId,
+      scheduledAt: new Date(scheduledAt).toISOString(),
+      duration:    parseInt(document.getElementById('ivDuration').value),
+      format:      document.getElementById('ivFormat').value,
+      meetingLink: document.getElementById('ivLink').value || null,
+      round:       parseInt(document.getElementById('ivRound').value),
+      interviewers: document.getElementById('ivInterviewers').value.split(',').map(s=>s.trim()).filter(Boolean),
+      notes:       document.getElementById('ivNotes').value,
+    })});
+    showToast('Interview scheduled! 📅');
+    await loadInterviews();
+    renderCalendar();
+  } catch (err) { showToast(err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Schedule Interview'; }
+}
+
+async function cancelInterview(id) {
+  if (!confirm('Cancel this interview?')) return;
+  await apiFetch('/interviews/'+id, { method:'PUT', body: JSON.stringify({ status:'cancelled' })});
+  showToast('Interview cancelled');
+  loadInterviews();
+}
+
+function openFeedback(id) {
+  document.getElementById('fbInterviewId').value = id;
+  document.getElementById('fbNotes').value = '';
+  setRating(0);
+  document.getElementById('feedbackModal').style.display = 'flex';
+}
+
+function setRating(r) {
+  currentRating = r;
+  document.querySelectorAll('.star').forEach((s, i) => s.textContent = i < r ? '⭐' : '☆');
+}
+
+async function submitFeedback() {
+  const id = document.getElementById('fbInterviewId').value;
+  await apiFetch('/interviews/'+id+'/feedback', { method:'PATCH', body: JSON.stringify({
+    feedback:       document.getElementById('fbNotes').value,
+    rating:         currentRating,
+    recommendation: document.getElementById('fbRec').value,
+    status:         'completed',
+  })});
+  showToast('Feedback saved! ✓');
+  document.getElementById('feedbackModal').style.display = 'none';
+  loadInterviews();
+}
+
+// Calendar
+function prevMonth() { calMonth--; if (calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function nextMonth() { calMonth++; if (calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent = `${months[calMonth]} ${calYear}`;
+
+  const first = new Date(calYear, calMonth, 1).getDay();
+  const days  = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+
+  // Map interviews to dates
+  const ivByDate = {};
+  allInterviews.forEach(iv => {
+    const d = iv.scheduledAt?.slice(0,10);
+    if (!ivByDate[d]) ivByDate[d] = [];
+    ivByDate[d].push(iv);
+  });
+
+  let html = '';
+  for (let i = 0; i < first; i++) html += '<div class="cal-cell other-month"></div>';
+  for (let d = 1; d <= days; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = today.getDate()===d && today.getMonth()===calMonth && today.getFullYear()===calYear;
+    const ivs     = ivByDate[dateStr] || [];
+    html += `<div class="cal-cell ${isToday?'today':''}">
+      <div class="cal-date-num ${isToday?'today-num':''}">${d}</div>
+      ${ivs.slice(0,3).map(iv=>`<div class="cal-event ${iv.status}" title="${iv.candidateName}">${iv.candidateName.split(' ')[0]}</div>`).join('')}
+      ${ivs.length>3?`<div style="font-size:9px;color:var(--slate-400);">+${ivs.length-3} more</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>

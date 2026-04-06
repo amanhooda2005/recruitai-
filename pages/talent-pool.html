@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Talent Pool</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .pool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .pool-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s, border-color .15s; }
+    .pool-card:hover { box-shadow: var(--shadow-md); border-color: var(--blue-200); }
+    .pool-card-header { display: flex; align-items: center; gap: 12px; }
+    .pool-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 14px; flex-shrink: 0; }
+    .pool-name { font-size: 15px; font-weight: 700; color: var(--slate-900); }
+    .pool-role { font-size: 12px; color: var(--slate-400); }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pool-tag { background: var(--blue-50); color: var(--blue-700); font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 600; cursor: pointer; }
+    .pool-tag:hover { background: var(--blue-100); }
+    .pool-tag.add-tag { background: var(--slate-100); color: var(--slate-500); }
+    .priority-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .priority-high   { background: #fee2e2; color: #991b1b; }
+    .priority-normal { background: #dbeafe; color: #1e40af; }
+    .priority-low    { background: var(--slate-100); color: var(--slate-500); }
+    .pool-actions { display: flex; gap: 8px; margin-top: auto; }
+    .pill-btn { flex: 1; border: 1.5px solid var(--slate-200); background: white; border-radius: var(--radius-md); padding: 6px 8px; font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; color: var(--slate-600); transition: all .15s; }
+    .pill-btn:hover { border-color: var(--blue-300); color: var(--blue-600); }
+    .pill-btn.danger:hover { border-color: var(--red-300); color: var(--red-500); }
+    /* Add modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: white; border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 14px; }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--slate-800); }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: .05em; }
+    .field select, .field input, .field textarea { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 8px 12px; font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; background: white; }
+    .empty-pool { text-align: center; padding: 80px 20px; color: var(--slate-400); }
+    .empty-pool svg { margin-bottom: 16px; opacity: .4; }
+    .sidebar-filters { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); padding: 20px; margin-bottom: 20px; }
+    .filter-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--slate-400); margin-bottom: 10px; }
+    .tag-filter-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag-filter-chip { background: var(--slate-100); color: var(--slate-600); font-size: 12px; padding: 3px 10px; border-radius: 99px; cursor: pointer; font-weight: 500; border: 1.5px solid transparent; }
+    .tag-filter-chip.active { background: var(--blue-50); color: var(--blue-700); border-color: var(--blue-300); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+  <main class="main-content">
+    <div id="topbarMount"></div>
+    <div class="page-body">
+
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">📂 Talent Pool</h1>
+          <p style="font-size:13px;color:var(--slate-400);">Save and organize top candidates for future opportunities.</p>
+        </div>
+        <button onclick="openAddModal()" class="btn btn--primary btn--sm">+ Add to Pool</button>
+      </div>
+
+      <!-- Search & filters row -->
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;">
+        <div style="flex:1;min-width:200px;position:relative;">
+          <input type="text" id="poolSearch" placeholder="Search name, role, skill…" oninput="filterPool()" style="border:1.5px solid var(--slate-200);border-radius:var(--radius-md);padding:8px 12px 8px 36px;font-size:13.5px;outline:none;width:100%;box-sizing:border-box;">
+          <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--slate-400);" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <select id="priorityFilter" onchange="filterPool()" style="border:1.5px solid var(--slate-200);border-radius:var(--radius-md);padding:8px 12px;font-size:13px;background:white;">
+          <option value="">All priorities</option>
+          <option value="high">🔴 High</option>
+          <option value="normal">🔵 Normal</option>
+          <option value="low">⚪ Low</option>
+        </select>
+        <div id="poolCount" style="font-size:13px;color:var(--slate-400);white-space:nowrap;"></div>
+      </div>
+
+      <!-- Tag filters -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-400);margin-bottom:8px;">Filter by Tag</div>
+        <div class="tag-filter-list" id="tagFilters"></div>
+      </div>
+
+      <!-- Pool grid -->
+      <div class="pool-grid" id="poolGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--slate-400);">Loading…</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Add to Pool modal -->
+<div id="addModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-title">📂 Add to Talent Pool</div>
+    <div class="field">
+      <label>Candidate *</label>
+      <select id="addCandidate"><option value="">Select candidate…</option></select>
+    </div>
+    <div class="field">
+      <label>Tags (comma-separated)</label>
+      <input type="text" id="addTags" placeholder="e.g. React, Senior, Available Q3">
+    </div>
+    <div class="field">
+      <label>Target Roles</label>
+      <input type="text" id="addRoles" placeholder="e.g. Frontend Engineer, Tech Lead">
+    </div>
+    <div class="field">
+      <label>Available From</label>
+      <input type="date" id="addAvailableFrom">
+    </div>
+    <div class="field">
+      <label>Priority</label>
+      <select id="addPriority">
+        <option value="high">🔴 High Priority</option>
+        <option value="normal" selected>🔵 Normal</option>
+        <option value="low">⚪ Low Priority</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="addNotes" rows="2" placeholder="Why save this candidate?"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="addToPool()" class="btn btn--primary" style="flex:1;justify-content:center;" id="addPoolBtn">Add to Pool</button>
+      <button onclick="document.getElementById('addModal').style.display='none'" class="btn btn--secondary">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Talent Pool');
+initSidebarToggle();
+
+const COLORS = ['var(--blue-600)','#8b5cf6','#059669','#d97706','#db2777','#0891b2'];
+let poolData = [];
+let allTags  = [];
+let activeTags = new Set();
+
+async function init() {
+  const { candidates } = await Candidates.list({ limit: 200 });
+  document.getElementById('addCandidate').innerHTML =
+    `<option value="">Select candidate…</option>` +
+    candidates.map(c=>`<option value="${c.id}">${c.name} — ${c.role||'Candidate'}</option>`).join('');
+  await loadPool();
+}
+
+async function loadPool() {
+  try {
+    const params = {};
+    const search = document.getElementById('poolSearch').value;
+    const priority = document.getElementById('priorityFilter').value;
+    if (search) params.search = search;
+    if (activeTags.size) params.tags = [...activeTags].join(',');
+    if (priority) params.priority = priority;
+
+    const qs = new URLSearchParams(params).toString();
+    const { pool, tagSummary } = await apiFetch('/talent-pool' + (qs?'?'+qs:''));
+    poolData = pool;
+    document.getElementById('poolCount').textContent = `${pool.length} candidate${pool.length!==1?'s':''}`;
+
+    // Tag filters
+    allTags = Object.entries(tagSummary).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('tagFilters').innerHTML = allTags.map(([tag,count])=>`
+      <span class="tag-filter-chip ${activeTags.has(tag)?'active':''}" onclick="toggleTag('${tag}')">${tag} <span style="opacity:.6;">${count}</span></span>
+    `).join('');
+
+    renderPool(pool);
+  } catch(err){ showToast(err.message,'error'); }
+}
+
+function renderPool(pool) {
+  const el = document.getElementById('poolGrid');
+  if (!pool.length) {
+    el.innerHTML = `<div class="empty-pool" style="grid-column:1/-1;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <div style="font-size:16px;font-weight:600;margin-bottom:6px;">Talent pool is empty</div>
+      <div style="font-size:13px;">Save top candidates here to reach out for future roles.</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = pool.map((entry, i) => {
+    const c = entry.candidate;
+    const color = COLORS[i % COLORS.length];
+    const skills = JSON.parse(c.skills||'[]');
+    const pClass = { high:'priority-high', normal:'priority-normal', low:'priority-low' }[entry.priority] || 'priority-normal';
+    return `
+    <div class="pool-card">
+      <div class="pool-card-header">
+        <div class="pool-avatar" style="background:linear-gradient(135deg,${color},${color}cc)">${c.initials||c.name.slice(0,2).toUpperCase()}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="pool-name">${c.name}</div>
+          <div class="pool-role">${c.role||'—'} · ${c.exp||'?'}</div>
+        </div>
+        <span class="priority-badge ${pClass}">${entry.priority}</span>
+      </div>
+
+      <div class="tag-list">
+        ${(entry.tags||[]).map(t=>`<span class="pool-tag" onclick="toggleTagFilter('${t}')">${t}</span>`).join('')}
+        <span class="pool-tag add-tag" onclick="addTagInline('${entry.id}')">+ tag</span>
+      </div>
+
+      ${skills.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${skills.slice(0,4).map(s=>`<span style="background:var(--slate-100);color:var(--slate-600);font-size:11px;padding:2px 8px;border-radius:99px;">${s}</span>`).join('')}
+      </div>` : ''}
+
+      ${entry.availableFrom ? `<div style="font-size:12px;color:var(--green-700);font-weight:500;">🗓 Available: ${fmtDate(entry.availableFrom)}</div>` : ''}
+      ${entry.notes ? `<div style="font-size:12px;color:var(--slate-500);font-style:italic;">${entry.notes.slice(0,80)}${entry.notes.length>80?'…':''}</div>` : ''}
+
+      <div class="pool-actions">
+        <button class="pill-btn" onclick="window.location='candidate-profile.html?id=${c.id}'">👤 Profile</button>
+        <button class="pill-btn" onclick="window.location='emails.html'">✉️ Email</button>
+        <button class="pill-btn danger" onclick="removeFromPool('${entry.id}','${c.name}')">🗑 Remove</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterPool() { loadPool(); }
+
+function toggleTag(tag) {
+  activeTags.has(tag) ? activeTags.delete(tag) : activeTags.add(tag);
+  loadPool();
+}
+
+function openAddModal() { document.getElementById('addModal').style.display='flex'; }
+
+async function addToPool() {
+  const candidateId = document.getElementById('addCandidate').value;
+  if (!candidateId) return showToast('Select a candidate','error');
+
+  const btn = document.getElementById('addPoolBtn');
+  btn.disabled = true; btn.textContent = 'Adding…';
+  try {
+    await apiFetch('/talent-pool', { method:'POST', body: JSON.stringify({
+      candidateId,
+      tags:          document.getElementById('addTags').value.split(',').map(s=>s.trim()).filter(Boolean),
+      targetRoles:   document.getElementById('addRoles').value.split(',').map(s=>s.trim()).filter(Boolean),
+      availableFrom: document.getElementById('addAvailableFrom').value || null,
+      priority:      document.getElementById('addPriority').value,
+      notes:         document.getElementById('addNotes').value,
+    })});
+    showToast('Added to talent pool! 📂');
+    document.getElementById('addModal').style.display='none';
+    await loadPool();
+  } catch(err){ showToast(err.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Add to Pool'; }
+}
+
+async function removeFromPool(id, name) {
+  if (!confirm(`Remove ${name} from talent pool?`)) return;
+  await apiFetch('/talent-pool/'+id, { method:'DELETE' });
+  showToast(`${name} removed from pool`);
+  loadPool();
+}
+
+async function addTagInline(entryId) {
+  const tag = prompt('Add tag:');
+  if (!tag?.trim()) return;
+  const entry = poolData.find(e => e.id === entryId);
+  if (!entry) return;
+  const newTags = [...(entry.tags||[]), tag.trim()];
+  await apiFetch('/talent-pool/'+entryId, { method:'PUT', body:JSON.stringify({ tags:newTags }) });
+  showToast('Tag added!');
+  loadPool();
+}
+
+init();
+</script>
+</body>
+</html>

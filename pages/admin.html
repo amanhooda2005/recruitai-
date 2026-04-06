@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RecruitAI — Admin Panel</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <style>
+    .admin-grid { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+    @media(max-width:1000px){ .admin-grid { grid-template-columns: 1fr; } }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+    @media(max-width:700px){ .stats-row { grid-template-columns: repeat(2,1fr); } }
+    .stat-tile { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 16px; }
+    .stat-tile-val { font-size: 28px; font-weight: 800; font-family: var(--font-display); color: var(--slate-900); }
+    .stat-tile-lbl { font-size: 12px; color: var(--slate-400); margin-top: 2px; }
+
+    /* Users table */
+    .users-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); overflow: hidden; }
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--slate-400); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--slate-100); background: var(--slate-50); }
+    .users-table td { padding: 12px 16px; border-bottom: 1px solid var(--slate-100); font-size: 13.5px; vertical-align: middle; }
+    .users-table tr:last-child td { border-bottom: none; }
+    .users-table tr:hover td { background: var(--slate-50); }
+
+    /* Role badges */
+    .role-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+    .role-admin       { background: #fee2e2; color: #991b1b; }
+    .role-hr_manager  { background: #dbeafe; color: #1e40af; }
+    .role-interviewer { background: #ede9fe; color: #6b21a8; }
+    .role-viewer      { background: var(--slate-100); color: var(--slate-600); }
+
+    /* Role select inline */
+    .role-select { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 5px 8px; font-size: 12px; background: white; color: var(--slate-700); cursor: pointer; outline: none; }
+    .role-select:focus { border-color: var(--blue-400); }
+
+    /* Invite form card */
+    .invite-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); }
+    .invite-header { padding: 16px 20px; border-bottom: 1px solid var(--slate-100); }
+    .invite-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--slate-600); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select { border: 1.5px solid var(--slate-200); border-radius: var(--radius-md); padding: 8px 12px; font-size: 13.5px; color: var(--slate-800); outline: none; font-family: inherit; background: white; }
+    .field input:focus, .field select:focus { border-color: var(--blue-400); }
+
+    /* Permissions matrix */
+    .perm-card { background: white; border-radius: var(--radius-xl); border: 1px solid var(--slate-200); overflow: hidden; }
+    .perm-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .perm-table th { padding: 10px 12px; border-bottom: 1px solid var(--slate-100); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--slate-400); text-align: center; }
+    .perm-table th:first-child { text-align: left; }
+    .perm-table td { padding: 7px 12px; border-bottom: 1px solid var(--slate-50); color: var(--slate-600); }
+    .perm-table tr:last-child td { border-bottom: none; }
+    .perm-table tr:hover td { background: var(--slate-50); }
+    .perm-check { color: var(--green-600); font-size: 14px; text-align: center; }
+    .perm-cross  { color: var(--slate-200); font-size: 14px; text-align: center; }
+    .perm-group { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--slate-400); padding: 12px 12px 4px; background: var(--slate-50); }
+
+    /* Active / inactive */
+    .active-dot   { width: 7px; height: 7px; border-radius: 50%; background: var(--green-500); display: inline-block; margin-right: 6px; }
+    .inactive-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red-400);   display: inline-block; margin-right: 6px; }
+
+    /* Temp pass alert */
+    .temp-pass-box { background: var(--amber-50); border: 1px solid var(--amber-200); border-radius: var(--radius-md); padding: 12px 14px; font-size: 13px; color: var(--amber-900); margin-top: 8px; display: none; word-break: break-all; }
+
+    /* Action btns */
+    .action-btn { border: none; background: none; cursor: pointer; font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); color: var(--slate-500); }
+    .action-btn:hover { background: var(--slate-100); color: var(--slate-800); }
+    .action-btn.danger:hover { background: #fee2e2; color: #991b1b; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; padding: 4px; background: var(--slate-100); border-radius: var(--radius-md); margin-bottom: 20px; width: fit-content; }
+    .tab-btn { padding: 7px 16px; border: none; background: none; border-radius: calc(var(--radius-md) - 2px); font-size: 13px; font-weight: 500; color: var(--slate-500); cursor: pointer; transition: all .15s; }
+    .tab-btn.active { background: white; color: var(--slate-900); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+    /* Current user indicator */
+    .you-badge { background: var(--blue-50); color: var(--blue-700); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebarMount"></div>
+  <main class="main-content">
+    <div id="topbarMount"></div>
+    <div class="page-body">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:22px;margin-bottom:2px;">🔐 Admin Panel</h1>
+          <p style="font-size:13px;color:var(--slate-400);">Manage team members, roles, and system-wide permissions.</p>
+        </div>
+        <div id="adminOnlyBadge" style="display:none;background:#fee2e2;color:#991b1b;padding:6px 14px;border-radius:var(--radius-md);font-size:13px;font-weight:600;">🔒 Admin access only</div>
+      </div>
+
+      <!-- Access denied overlay -->
+      <div id="accessDenied" style="display:none;text-align:center;padding:80px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+        <div style="font-size:20px;font-weight:700;color:var(--slate-800);margin-bottom:8px;">Admin Access Required</div>
+        <div style="font-size:14px;color:var(--slate-500);margin-bottom:20px;">You need Admin role to access this page.</div>
+        <a href="dashboard.html" class="btn btn--primary">← Back to Dashboard</a>
+      </div>
+
+      <!-- Main content (shown only to admins) -->
+      <div id="adminContent" style="display:none;">
+
+        <!-- Stats row -->
+        <div class="stats-row" id="statsRow"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" id="tab-users" onclick="showTab('users')">👥 Users</button>
+          <button class="tab-btn" id="tab-perms" onclick="showTab('perms')">🔑 Permissions</button>
+          <button class="tab-btn" id="tab-activity" onclick="showTab('activity')">📋 Activity Log</button>
+        </div>
+
+        <!-- Users tab -->
+        <div id="panel-users">
+          <div class="admin-grid">
+            <!-- Users table -->
+            <div class="users-card">
+              <div style="padding:16px 20px;border-bottom:1px solid var(--slate-100);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:15px;font-weight:700;color:var(--slate-800);">Team Members</span>
+                <span id="userCount" style="font-size:13px;color:var(--slate-400);"></span>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="users-table">
+                  <thead><tr>
+                    <th>User</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th>
+                  </tr></thead>
+                  <tbody id="usersTableBody">
+                    <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--slate-400);">Loading…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Invite form -->
+            <div class="invite-card">
+              <div class="invite-header">
+                <div style="font-size:15px;font-weight:700;color:var(--slate-800);">Invite Team Member</div>
+                <div style="font-size:12px;color:var(--slate-400);margin-top:2px;">Add a new user to your workspace</div>
+              </div>
+              <div class="invite-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div class="field"><label>First Name *</label><input id="invFirst" placeholder="Jane"></div>
+                  <div class="field"><label>Last Name</label><input id="invLast" placeholder="Smith"></div>
+                </div>
+                <div class="field"><label>Email *</label><input type="email" id="invEmail" placeholder="jane@company.com"></div>
+                <div class="field">
+                  <label>Role</label>
+                  <select id="invRole">
+                    <option value="viewer">Viewer — read only</option>
+                    <option value="interviewer">Interviewer — view + scorecards</option>
+                    <option value="hr_manager" selected>HR Manager — full access</option>
+                    <option value="admin">Admin — user management</option>
+                  </select>
+                </div>
+
+                <!-- Role description -->
+                <div id="roleDesc" style="background:var(--slate-50);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--slate-600);border-left:3px solid var(--blue-400);"></div>
+
+                <button onclick="inviteUser()" class="btn btn--primary" style="width:100%;justify-content:center;" id="inviteBtn">Send Invite</button>
+
+                <!-- Temp password display -->
+                <div class="temp-pass-box" id="tempPassBox"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permissions matrix tab -->
+        <div id="panel-perms" style="display:none;">
+          <div class="perm-card">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--slate-100);">
+              <div style="font-size:15px;font-weight:700;color:var(--slate-800);">Permissions Matrix</div>
+              <div style="font-size:12px;color:var(--slate-400);margin-top:2px;">What each role can do in the system</div>
+            </div>
+            <div style="overflow-x:auto;" id="permMatrix"></div>
+          </div>
+        </div>
+
+        <!-- Activity log tab -->
+        <div id="panel-activity" style="display:none;">
+          <div class="users-card">
+            <div style="padding:16px 20px;border-bottom:1px solid var(--slate-100);">
+              <span style="font-size:15px;font-weight:700;color:var(--slate-800);">System Activity Log</span>
+            </div>
+            <div id="activityLog" style="padding:16px;max-height:600px;overflow-y:auto;">
+              <div style="text-align:center;padding:32px;color:var(--slate-400);">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../components/shared.js"></script>
+<script src="../components/api.js"></script>
+<script>
+if (!Auth.isLoggedIn()) window.location.href = 'auth.html';
+document.getElementById('sidebarMount').innerHTML = buildSidebar('');
+document.getElementById('topbarMount').innerHTML  = buildTopbar('Admin Panel', false);
+initSidebarToggle();
+
+const ROLE_META = {
+  admin:       { label: 'Admin',       cls: 'role-admin',       desc: 'Full access including user management' },
+  hr_manager:  { label: 'HR Manager',  cls: 'role-hr_manager',  desc: 'Manage candidates, jobs, emails, interviews, AI' },
+  interviewer: { label: 'Interviewer', cls: 'role-interviewer',  desc: 'View candidates, submit scorecards and interview feedback' },
+  viewer:      { label: 'Viewer',      cls: 'role-viewer',      desc: 'Read-only access to candidates, jobs, and analytics' },
+};
+
+const PERM_GROUPS = {
+  'Candidates':    ['candidates:read','candidates:create','candidates:update','candidates:delete','candidates:status'],
+  'Jobs':          ['jobs:read','jobs:create','jobs:update','jobs:delete'],
+  'Interviews':    ['interviews:read','interviews:create','interviews:update','interviews:feedback','interviews:delete'],
+  'Scorecards':    ['scorecards:read','scorecards:create','scorecards:delete'],
+  'Emails':        ['emails:read','emails:send'],
+  'AI Features':   ['ai:use'],
+  'Talent Pool':   ['talent_pool:read','talent_pool:write'],
+  'Analytics':     ['analytics:read'],
+  'User Management':['users:read','users:create','users:update','users:delete','users:change_role'],
+};
+
+const PERM_MATRIX = {
+  'candidates:read':       ['viewer','interviewer','hr_manager','admin'],
+  'candidates:create':     ['hr_manager','admin'],
+  'candidates:update':     ['hr_manager','admin'],
+  'candidates:delete':     ['hr_manager','admin'],
+  'candidates:status':     ['hr_manager','admin'],
+  'jobs:read':             ['viewer','interviewer','hr_manager','admin'],
+  'jobs:create':           ['hr_manager','admin'],
+  'jobs:update':           ['hr_manager','admin'],
+  'jobs:delete':           ['hr_manager','admin'],
+  'interviews:read':       ['viewer','interviewer','hr_manager','admin'],
+  'interviews:create':     ['hr_manager','admin'],
+  'interviews:update':     ['hr_manager','admin'],
+  'interviews:feedback':   ['interviewer','hr_manager','admin'],
+  'interviews:delete':     ['hr_manager','admin'],
+  'scorecards:read':       ['viewer','interviewer','hr_manager','admin'],
+  'scorecards:create':     ['interviewer','hr_manager','admin'],
+  'scorecards:delete':     ['hr_manager','admin'],
+  'emails:read':           ['hr_manager','admin'],
+  'emails:send':           ['hr_manager','admin'],
+  'ai:use':                ['hr_manager','admin'],
+  'talent_pool:read':      ['viewer','interviewer','hr_manager','admin'],
+  'talent_pool:write':     ['hr_manager','admin'],
+  'analytics:read':        ['viewer','interviewer','hr_manager','admin'],
+  'users:read':            ['admin'],
+  'users:create':          ['admin'],
+  'users:update':          ['admin'],
+  'users:delete':          ['admin'],
+  'users:change_role':     ['admin'],
+};
+
+const ROLES_ORDER = ['viewer','interviewer','hr_manager','admin'];
+
+let currentUser = null;
+
+async function init() {
+  const u = getUser();
+  currentUser = u;
+
+  if (!u || u.role !== 'admin') {
+    document.getElementById('accessDenied').style.display = 'block';
+    document.getElementById('adminOnlyBadge').style.display = 'block';
+    return;
+  }
+  document.getElementById('adminContent').style.display = 'block';
+  await Promise.all([loadStats(), loadUsers()]);
+  updateRoleDesc();
+  document.getElementById('invRole').addEventListener('change', updateRoleDesc);
+}
+
+function updateRoleDesc() {
+  const role = document.getElementById('invRole').value;
+  document.getElementById('roleDesc').textContent = ROLE_META[role]?.desc || '';
+}
+
+function showTab(name) {
+  ['users','perms','activity'].forEach(t => {
+    document.getElementById('panel-'+t).style.display = t===name?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+  if (name === 'perms')    renderPermMatrix();
+  if (name === 'activity') loadActivity();
+}
+
+async function loadStats() {
+  try {
+    const { totalUsers, activeUsers, roleBreakdown, totalCandidates, totalJobs } = await apiFetch('/admin/stats');
+    document.getElementById('statsRow').innerHTML = [
+      ['Total Users',  totalUsers],
+      ['Active Users', activeUsers],
+      ['Candidates',   totalCandidates],
+      ['Jobs',         totalJobs],
+    ].map(([label, val]) => `
+      <div class="stat-tile">
+        <div class="stat-tile-val">${val}</div>
+        <div class="stat-tile-lbl">${label}</div>
+      </div>`).join('');
+  } catch(err) { if (err.status !== 403) showToast(err.message, 'error'); }
+}
+
+async function loadUsers() {
+  try {
+    const { users, total } = await apiFetch('/admin/users');
+    document.getElementById('userCount').textContent = `${total} member${total!==1?'s':''}`;
+
+    document.getElementById('usersTableBody').innerHTML = users.map(u => {
+      const meta = ROLE_META[u.role] || ROLE_META.viewer;
+      const isMe = currentUser?.id === u.id;
+      return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue-500),#8b5cf6);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0;">
+              ${(u.first_name[0]+(u.last_name?.[0]||'')).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:13.5px;color:var(--slate-900);">
+                ${u.first_name} ${u.last_name||''}
+                ${isMe ? '<span class="you-badge">you</span>' : ''}
+              </div>
+              <div style="font-size:12px;color:var(--slate-400);">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          ${isMe
+            ? `<span class="role-badge ${meta.cls}">${meta.label}</span>`
+            : `<select class="role-select" onchange="changeRole('${u.id}',this.value)" title="Change role">
+                ${ROLES_ORDER.map(r => `<option value="${r}" ${u.role===r?'selected':''}>${ROLE_META[r].label}</option>`).join('')}
+               </select>`
+          }
+        </td>
+        <td>
+          <span class="${u.active!==false?'active-dot':'inactive-dot'}"></span>
+          ${u.active !== false ? 'Active' : '<span style="color:var(--red-500);">Deactivated</span>'}
+        </td>
+        <td style="color:var(--slate-400);font-size:12px;">${u.last_login ? fmtRelative(u.last_login) : 'Never'}</td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            ${!isMe ? `
+              <button class="action-btn" onclick="toggleActive('${u.id}',${u.active===false})" title="${u.active===false?'Activate':'Deactivate'}">
+                ${u.active !== false ? '⏸ Deactivate' : '▶ Activate'}
+              </button>
+              <button class="action-btn danger" onclick="deleteUser('${u.id}','${u.first_name}')" title="Delete">🗑 Delete</button>
+            ` : '<span style="font-size:12px;color:var(--slate-300);">—</span>'}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(err) {
+    if (err.status === 403) { document.getElementById('accessDenied').style.display='block'; document.getElementById('adminContent').style.display='none'; }
+    else showToast(err.message, 'error');
+  }
+}
+
+async function changeRole(userId, role) {
+  try {
+    await apiFetch(`/admin/users/${userId}/role`, { method:'PATCH', body:JSON.stringify({ role }) });
+    showToast(`Role updated to ${ROLE_META[role].label}`);
+    await loadUsers();
+    await loadStats();
+  } catch(err) { showToast(err.message,'error'); loadUsers(); }
+}
+
+async function toggleActive(userId, activate) {
+  try {
+    await apiFetch(`/admin/users/${userId}/active`, { method:'PATCH', body:JSON.stringify({ active: activate }) });
+    showToast(activate ? 'User activated' : 'User deactivated');
+    loadUsers();
+  } catch(err) { showToast(err.message,'error'); }
+}
+
+async function deleteUser(userId, name) {
+  if (!confirm(`Permanently delete ${name}? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/admin/users/${userId}`, { method:'DELETE' });
+    showToast(`${name} deleted`);
+    await loadUsers(); await loadStats();
+  } catch(err) { showToast(err.message,'error'); }
+}
+
+async function inviteUser() {
+  const first = document.getElementById('invFirst').value.trim();
+  const email = document.getElementById('invEmail').value.trim();
+  const role  = document.getElementById('invRole').value;
+  if (!first || !email) return showToast('Name and email are required','error');
+
+  const btn = document.getElementById('inviteBtn');
+  btn.disabled=true; btn.textContent='Inviting…';
+
+  try {
+    const { tempPass, user } = await apiFetch('/admin/users', { method:'POST', body:JSON.stringify({
+      first_name: first,
+      last_name:  document.getElementById('invLast').value.trim(),
+      email, role,
+    })});
+    showToast(`${first} added as ${ROLE_META[role].label}!`);
+
+    const box = document.getElementById('tempPassBox');
+    box.style.display = 'block';
+    box.innerHTML = `<strong>⚠️ Share these credentials securely:</strong><br>Email: <code>${email}</code><br>Temp password: <code>${tempPass}</code><br><small>User should change password after first login.</small>`;
+
+    document.getElementById('invFirst').value = '';
+    document.getElementById('invLast').value  = '';
+    document.getElementById('invEmail').value = '';
+    await loadUsers(); await loadStats();
+  } catch(err) { showToast(err.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='Send Invite'; }
+}
+
+function renderPermMatrix() {
+  const ROLE_LABELS = { viewer:'Viewer', interviewer:'Interviewer', hr_manager:'HR Manager', admin:'Admin' };
+  let html = `<table class="perm-table"><thead><tr>
+    <th>Permission</th>
+    ${ROLES_ORDER.map(r=>`<th><span class="role-badge ${ROLE_META[r].cls}" style="font-size:11px;">${ROLE_META[r].label}</span></th>`).join('')}
+  </tr></thead><tbody>`;
+
+  Object.entries(PERM_GROUPS).forEach(([group, perms]) => {
+    html += `<tr><td colspan="5" class="perm-group">${group}</td></tr>`;
+    perms.forEach(perm => {
+      const label = perm.split(':')[1].replace(/_/g,' ');
+      html += `<tr><td style="color:var(--slate-600);padding-left:20px;">${label}</td>
+        ${ROLES_ORDER.map(r => `<td class="${PERM_MATRIX[perm]?.includes(r)?'perm-check':'perm-cross'}">${PERM_MATRIX[perm]?.includes(r)?'✓':'·'}</td>`).join('')}
+      </tr>`;
+    });
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('permMatrix').innerHTML = html;
+}
+
+async function loadActivity() {
+  try {
+    const { activity } = await apiFetch('/admin/activity');
+    const ICONS = { new_application:'📥', interview_scheduled:'📅', email_sent:'✉️', status_change:'🔄', ai_report:'🤖', info:'🔔' };
+    const el = document.getElementById('activityLog');
+    if (!activity.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--slate-400);">No activity yet</div>'; return; }
+    el.innerHTML = activity.map(n => `
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--slate-100);">
+        <span style="font-size:16px;flex-shrink:0;">${ICONS[n.type]||'🔔'}</span>
+        <div style="flex:1;">
+          <div style="font-size:13.5px;font-weight:600;color:var(--slate-800);">${n.title}</div>
+          <div style="font-size:12px;color:var(--slate-500);">${n.message||''}</div>
+        </div>
+        <div style="font-size:11px;color:var(--slate-400);white-space:nowrap;">${fmtRelative(n.created_at)}</div>
+      </div>`).join('');
+  } catch(err){ showToast(err.message,'error'); }
+}
+
+init();
+</script>
+</body>
+</html>

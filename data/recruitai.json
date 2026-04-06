@@ -1,0 +1,681 @@
+{
+  "users": [
+    {
+      "id": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "first_name": "Sarah",
+      "last_name": "Ahmed",
+      "email": "sarah@acmecorp.com",
+      "password": "$2a$12$/JGiJF03BEIbsy5Te7fdwuXpbnbJpxQuqj42dc9ios6nVfVBRXuFK",
+      "company": "Acme Corp",
+      "role": "hr_manager",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "ab49af0b-89fd-4dbb-858a-5db1fabce904",
+      "first_name": "Alex",
+      "last_name": "Kumar",
+      "email": "admin@acmecorp.com",
+      "password": "$2a$12$pCQ9Bv0gmmKpDVS4YGgcjuOTXSTel5EOT42NMPCf4Sq5nv2H6Hil6",
+      "company": "Acme Corp",
+      "role": "admin",
+      "created_at": "2026-04-06 09:26:44",
+      "last_login": "2026-04-06T09:29:01.309Z"
+    },
+    {
+      "id": "10937b14-3119-49f6-b1dc-266e86804d3e",
+      "first_name": "Jamie",
+      "last_name": "Chen",
+      "email": "interviewer@acmecorp.com",
+      "password": "$2a$12$pCQ9Bv0gmmKpDVS4YGgcjuOTXSTel5EOT42NMPCf4Sq5nv2H6Hil6",
+      "company": "Acme Corp",
+      "role": "interviewer",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "36844115-3362-44f2-a305-4d77cd7cc732",
+      "first_name": "Pat",
+      "last_name": "Rivera",
+      "email": "viewer@acmecorp.com",
+      "password": "$2a$12$pCQ9Bv0gmmKpDVS4YGgcjuOTXSTel5EOT42NMPCf4Sq5nv2H6Hil6",
+      "company": "Acme Corp",
+      "role": "viewer",
+      "created_at": "2026-04-06 09:26:44"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "0cde5e55-c8dd-40cb-b905-7c7e182298d1",
+      "title": "Senior Frontend Engineer",
+      "dept": "Engineering",
+      "location": "Remote",
+      "type": "Full-time",
+      "exp": "5+ yrs",
+      "salary": "$120k – $150k",
+      "description": "We are looking for a talented Senior Frontend Engineer to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"React\",\"TypeScript\",\"Node.js\",\"CSS\"]",
+      "status": "Active",
+      "applicants": 48,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 16,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "07bac14b-35e2-4a25-9b14-376ac6ad8bd4",
+      "title": "Product Manager",
+      "dept": "Product",
+      "location": "San Francisco",
+      "type": "Full-time",
+      "exp": "5+ yrs",
+      "salary": "$130k – $160k",
+      "description": "We are looking for a talented Product Manager to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"Roadmapping\",\"Agile\",\"JIRA\",\"Analytics\"]",
+      "status": "Active",
+      "applicants": 35,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 11,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "622f1791-513b-4320-99c9-2611504623d0",
+      "title": "Data Scientist",
+      "dept": "Data",
+      "location": "Remote",
+      "type": "Full-time",
+      "exp": "3+ yrs",
+      "salary": "$110k – $140k",
+      "description": "We are looking for a talented Data Scientist to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"Python\",\"ML\",\"TensorFlow\",\"SQL\"]",
+      "status": "Active",
+      "applicants": 62,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 19,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "c43a5a80-e48c-4022-8c49-b54f2155a877",
+      "title": "ML Engineer",
+      "dept": "Engineering",
+      "location": "New York",
+      "type": "Full-time",
+      "exp": "3+ yrs",
+      "salary": "$115k – $145k",
+      "description": "We are looking for a talented ML Engineer to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"PyTorch\",\"NLP\",\"AWS\",\"Python\"]",
+      "status": "Active",
+      "applicants": 29,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 19,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "07b40c36-c9ce-447f-a1b5-fe070511aa23",
+      "title": "UX Designer",
+      "dept": "Design",
+      "location": "Remote",
+      "type": "Full-time",
+      "exp": "4+ yrs",
+      "salary": "$90k – $120k",
+      "description": "We are looking for a talented UX Designer to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"Figma\",\"User Research\",\"Prototyping\"]",
+      "status": "Active",
+      "applicants": 41,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 18,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "f3433d86-0544-40a6-b8f2-22a814a8334a",
+      "title": "Backend Engineer",
+      "dept": "Engineering",
+      "location": "Remote",
+      "type": "Full-time",
+      "exp": "4+ yrs",
+      "salary": "$110k – $140k",
+      "description": "We are looking for a talented Backend Engineer to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"Go\",\"PostgreSQL\",\"Docker\",\"Kubernetes\"]",
+      "status": "Closed",
+      "applicants": 55,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 9,
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "c7bbf8fb-29af-4519-ba56-74aec1ce37bc",
+      "title": "DevOps Engineer",
+      "dept": "Engineering",
+      "location": "Austin",
+      "type": "Full-time",
+      "exp": "3+ yrs",
+      "salary": "$105k – $135k",
+      "description": "We are looking for a talented DevOps Engineer to join our team. You will work on exciting projects and collaborate with a world-class team.",
+      "skills": "[\"AWS\",\"Terraform\",\"Docker\",\"Kubernetes\"]",
+      "status": "Draft",
+      "applicants": 0,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "posted": 22,
+      "created_at": "2026-04-06 09:26:44"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "22579afe-47e5-4bb9-8576-09fb110c0cc4",
+      "name": "Arjun Kapoor",
+      "initials": "AK",
+      "role": "Senior Frontend Engineer",
+      "exp": "5 yrs",
+      "skills": "[\"React\",\"TypeScript\",\"Node.js\"]",
+      "score": 96,
+      "status": "Shortlisted",
+      "email": "arjun.kapoor@email.com",
+      "job_id": "0cde5e55-c8dd-40cb-b905-7c7e182298d1",
+      "applied": "2025-06-10",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "c312b59a-e9aa-49df-8f3d-627602e14cb0",
+      "name": "Priya Mehta",
+      "initials": "PM",
+      "role": "Product Manager",
+      "exp": "7 yrs",
+      "skills": "[\"Roadmapping\",\"Agile\",\"JIRA\"]",
+      "score": 91,
+      "status": "Selected",
+      "email": "priya.mehta@email.com",
+      "job_id": "07bac14b-35e2-4a25-9b14-376ac6ad8bd4",
+      "applied": "2025-06-09",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "14601f9d-5f5c-44ca-9189-ac75673a0576",
+      "name": "Sneha Iyer",
+      "initials": "SI",
+      "role": "Data Scientist",
+      "exp": "4 yrs",
+      "skills": "[\"Python\",\"ML\",\"TensorFlow\"]",
+      "score": 88,
+      "status": "Shortlisted",
+      "email": "sneha.iyer@email.com",
+      "job_id": "622f1791-513b-4320-99c9-2611504623d0",
+      "applied": "2025-06-08",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "d5b0c056-739e-4d44-bf8a-4be13ea085c5",
+      "name": "Dev Sharma",
+      "initials": "DS",
+      "role": "ML Engineer",
+      "exp": "3 yrs",
+      "skills": "[\"PyTorch\",\"NLP\",\"AWS\"]",
+      "score": 85,
+      "status": "Pending",
+      "email": "dev.sharma@email.com",
+      "job_id": "c43a5a80-e48c-4022-8c49-b54f2155a877",
+      "applied": "2025-06-08",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "8d42a0c4-7d0f-47f7-b717-589bba3096bf",
+      "name": "Kavya Nair",
+      "initials": "KN",
+      "role": "UX Designer",
+      "exp": "6 yrs",
+      "skills": "[\"Figma\",\"User Research\",\"Prototyping\"]",
+      "score": 82,
+      "status": "Pending",
+      "email": "kavya.nair@email.com",
+      "job_id": "07b40c36-c9ce-447f-a1b5-fe070511aa23",
+      "applied": "2025-06-07",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "1662f15b-e0b1-4189-8eca-3406d1cce550",
+      "name": "Rohan Verma",
+      "initials": "RV",
+      "role": "Backend Engineer",
+      "exp": "5 yrs",
+      "skills": "[\"Go\",\"PostgreSQL\",\"Docker\"]",
+      "score": 80,
+      "status": "Shortlisted",
+      "email": "rohan.verma@email.com",
+      "job_id": "f3433d86-0544-40a6-b8f2-22a814a8334a",
+      "applied": "2025-06-07",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "2fb3366a-04e1-4cc2-a708-8f20476eb002",
+      "name": "Ananya Raj",
+      "initials": "AR",
+      "role": "Product Manager",
+      "exp": "4 yrs",
+      "skills": "[\"Strategy\",\"Analytics\",\"SQL\"]",
+      "score": 77,
+      "status": "Pending",
+      "email": "ananya.raj@email.com",
+      "job_id": "07bac14b-35e2-4a25-9b14-376ac6ad8bd4",
+      "applied": "2025-06-06",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "6aa66431-d5b5-4531-8aad-7e0c888e5594",
+      "name": "Kiran Das",
+      "initials": "KD",
+      "role": "Senior Frontend Engineer",
+      "exp": "2 yrs",
+      "skills": "[\"Vue\",\"CSS\",\"JavaScript\"]",
+      "score": 58,
+      "status": "Rejected",
+      "email": "kiran.das@email.com",
+      "job_id": "0cde5e55-c8dd-40cb-b905-7c7e182298d1",
+      "applied": "2025-06-05",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "40ce73ce-c058-49b9-92cb-bc4edf23965f",
+      "name": "Meera Pillai",
+      "initials": "MP",
+      "role": "Data Scientist",
+      "exp": "3 yrs",
+      "skills": "[\"R\",\"Statistics\",\"Tableau\"]",
+      "score": 74,
+      "status": "Pending",
+      "email": "meera.pillai@email.com",
+      "job_id": "622f1791-513b-4320-99c9-2611504623d0",
+      "applied": "2025-06-05",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "d6130363-e9d5-4064-8da4-7964cd1f469e",
+      "name": "Vikram Singh",
+      "initials": "VS",
+      "role": "ML Engineer",
+      "exp": "6 yrs",
+      "skills": "[\"Keras\",\"CV\",\"GCP\"]",
+      "score": 89,
+      "status": "Shortlisted",
+      "email": "vikram.singh@email.com",
+      "job_id": "c43a5a80-e48c-4022-8c49-b54f2155a877",
+      "applied": "2025-06-04",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "61fb746e-b638-438d-b2da-cf90da29e366",
+      "name": "Pooja Krishnan",
+      "initials": "PK",
+      "role": "UX Designer",
+      "exp": "5 yrs",
+      "skills": "[\"Sketch\",\"InVision\",\"CSS\"]",
+      "score": 79,
+      "status": "Pending",
+      "email": "pooja.krishnan@email.com",
+      "job_id": "07b40c36-c9ce-447f-a1b5-fe070511aa23",
+      "applied": "2025-06-04",
+      "created_at": "2026-04-06 09:26:44"
+    },
+    {
+      "id": "20a9214b-d7cc-4afa-bb3f-a13d5ad660b0",
+      "name": "Amit Gupta",
+      "initials": "AG",
+      "role": "Backend Engineer",
+      "exp": "8 yrs",
+      "skills": "[\"Java\",\"Spring\",\"Kafka\"]",
+      "score": 86,
+      "status": "Selected",
+      "email": "amit.gupta@email.com",
+      "job_id": "f3433d86-0544-40a6-b8f2-22a814a8334a",
+      "applied": "2025-06-03",
+      "created_at": "2026-04-06 09:26:44"
+    }
+  ],
+  "interviews": [
+    {
+      "id": "b5552efb-a75c-4cab-8b62-4b34b71e5c10",
+      "candidateId": "22579afe-47e5-4bb9-8576-09fb110c0cc4",
+      "candidateName": "Arjun Kapoor",
+      "jobId": "0cde5e55-c8dd-40cb-b905-7c7e182298d1",
+      "scheduledAt": "2026-04-07T09:26:44.367Z",
+      "duration": 60,
+      "format": "Video Call",
+      "meetingLink": "https://meet.google.com/demo-link",
+      "interviewers": [
+        "Sarah Ahmed"
+      ],
+      "notes": "Prepare system design questions",
+      "round": 1,
+      "status": "scheduled",
+      "feedback": null,
+      "rating": null,
+      "recommendation": null,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "created_at": "2026-04-06T09:26:44.368Z"
+    },
+    {
+      "id": "cfb62599-925c-4405-accc-bf65c1fba5fe",
+      "candidateId": "c312b59a-e9aa-49df-8f3d-627602e14cb0",
+      "candidateName": "Priya Mehta",
+      "jobId": "07bac14b-35e2-4a25-9b14-376ac6ad8bd4",
+      "scheduledAt": "2026-04-09T09:26:44.367Z",
+      "duration": 45,
+      "format": "Phone Call",
+      "meetingLink": null,
+      "interviewers": [
+        "Dev Lead"
+      ],
+      "notes": "Prepare system design questions",
+      "round": 2,
+      "status": "scheduled",
+      "feedback": null,
+      "rating": null,
+      "recommendation": null,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "created_at": "2026-04-06T09:26:44.368Z"
+    },
+    {
+      "id": "5ae47b3d-69ee-494e-aee2-40021f88645e",
+      "candidateId": "14601f9d-5f5c-44ca-9189-ac75673a0576",
+      "candidateName": "Sneha Iyer",
+      "jobId": "622f1791-513b-4320-99c9-2611504623d0",
+      "scheduledAt": "2026-04-11T09:26:44.367Z",
+      "duration": 60,
+      "format": "In Person",
+      "meetingLink": "https://meet.google.com/demo-link",
+      "interviewers": [
+        "Sarah Ahmed"
+      ],
+      "notes": "Prepare system design questions",
+      "round": 3,
+      "status": "completed",
+      "feedback": "Strong communicator, good technical depth",
+      "rating": 4,
+      "recommendation": "Hire",
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "created_at": "2026-04-06T09:26:44.368Z"
+    },
+    {
+      "id": "d7af5fdf-9e50-4656-8414-4b5fdc54b833",
+      "candidateId": "d5b0c056-739e-4d44-bf8a-4be13ea085c5",
+      "candidateName": "Dev Sharma",
+      "jobId": "c43a5a80-e48c-4022-8c49-b54f2155a877",
+      "scheduledAt": "2026-04-13T09:26:44.367Z",
+      "duration": 45,
+      "format": "Video Call",
+      "meetingLink": null,
+      "interviewers": [
+        "Dev Lead"
+      ],
+      "notes": "Prepare system design questions",
+      "round": 1,
+      "status": "scheduled",
+      "feedback": null,
+      "rating": null,
+      "recommendation": null,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "created_at": "2026-04-06T09:26:44.368Z"
+    },
+    {
+      "id": "6c227e93-c7a8-4abc-93fa-af90612a42e3",
+      "candidateId": "8d42a0c4-7d0f-47f7-b717-589bba3096bf",
+      "candidateName": "Kavya Nair",
+      "jobId": "07b40c36-c9ce-447f-a1b5-fe070511aa23",
+      "scheduledAt": "2026-04-15T09:26:44.367Z",
+      "duration": 60,
+      "format": "Technical Test",
+      "meetingLink": "https://meet.google.com/demo-link",
+      "interviewers": [
+        "Sarah Ahmed"
+      ],
+      "notes": "Prepare system design questions",
+      "round": 2,
+      "status": "scheduled",
+      "feedback": null,
+      "rating": null,
+      "recommendation": null,
+      "created_by": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "created_at": "2026-04-06T09:26:44.368Z"
+    }
+  ],
+  "emails": [],
+  "notifications": [
+    {
+      "id": "56b370c4-e4ed-4ff1-bd06-3d2805ad0141",
+      "type": "new_application",
+      "title": "New application received",
+      "message": "Arjun Kapoor applied for Senior Frontend Engineer",
+      "link": "/pages/candidates.html",
+      "userId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "read": false,
+      "created_at": "2026-04-06T09:26:44.367Z"
+    },
+    {
+      "id": "0bae419e-579e-48fe-951a-f89298f49c74",
+      "type": "interview_scheduled",
+      "title": "Interview scheduled",
+      "message": "Priya Mehta — Tomorrow at 10:00 AM",
+      "link": "/pages/interviews.html",
+      "userId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "read": false,
+      "created_at": "2026-04-06T07:26:44.367Z"
+    },
+    {
+      "id": "05779276-f1f1-49ad-bdf6-093f527ad2e3",
+      "type": "status_change",
+      "title": "Candidate shortlisted",
+      "message": "Sneha Iyer moved to Shortlisted",
+      "link": "/pages/candidates.html",
+      "userId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "read": false,
+      "created_at": "2026-04-06T05:26:44.367Z"
+    },
+    {
+      "id": "9b5ea928-a61d-44bd-b572-f1ab2dd3084d",
+      "type": "email_sent",
+      "title": "Email sent",
+      "message": "Interview invite sent to Dev Sharma",
+      "link": "/pages/emails.html",
+      "userId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "read": true,
+      "created_at": "2026-04-06T03:26:44.367Z"
+    },
+    {
+      "id": "7368a6df-246b-4635-8383-8afb857afbea",
+      "type": "new_application",
+      "title": "New public application",
+      "message": "Rahul Patel applied via Job Board for ML Engineer",
+      "link": "/pages/candidates.html",
+      "userId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "read": true,
+      "created_at": "2026-04-06T01:26:44.367Z"
+    }
+  ],
+  "talent_pool": [
+    {
+      "id": "1a0eef93-24bc-48a5-935f-099c623b4180",
+      "candidateId": "22579afe-47e5-4bb9-8576-09fb110c0cc4",
+      "tags": [
+        "React",
+        "Senior"
+      ],
+      "notes": "Strong candidate — keep for future senior openings",
+      "source": "pipeline",
+      "targetRoles": [
+        "Senior Frontend Engineer"
+      ],
+      "availableFrom": "2026-05-06",
+      "addedBy": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "added_at": "2026-04-06T09:26:44.367Z",
+      "priority": "high"
+    },
+    {
+      "id": "0a8ec8f1-077e-44df-b3e1-e3c00b5b739d",
+      "candidateId": "c312b59a-e9aa-49df-8f3d-627602e14cb0",
+      "tags": [
+        "Python",
+        "ML"
+      ],
+      "notes": "Strong candidate — keep for future senior openings",
+      "source": "pipeline",
+      "targetRoles": [
+        "Product Manager"
+      ],
+      "availableFrom": "2026-05-06",
+      "addedBy": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "added_at": "2026-04-05T09:26:44.367Z",
+      "priority": "normal"
+    },
+    {
+      "id": "c7d64eea-18d4-494f-8d8c-9c7561e1d4ea",
+      "candidateId": "14601f9d-5f5c-44ca-9189-ac75673a0576",
+      "tags": [
+        "Product"
+      ],
+      "notes": "Strong candidate — keep for future senior openings",
+      "source": "pipeline",
+      "targetRoles": [
+        "Data Scientist"
+      ],
+      "availableFrom": "2026-05-06",
+      "addedBy": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "added_at": "2026-04-04T09:26:44.367Z",
+      "priority": "normal"
+    },
+    {
+      "id": "75fb63c2-51e7-4b67-b321-2e1987a182dd",
+      "candidateId": "d5b0c056-739e-4d44-bf8a-4be13ea085c5",
+      "tags": [
+        "Go",
+        "Backend"
+      ],
+      "notes": "Strong candidate — keep for future senior openings",
+      "source": "pipeline",
+      "targetRoles": [
+        "ML Engineer"
+      ],
+      "availableFrom": "2026-05-06",
+      "addedBy": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "added_at": "2026-04-03T09:26:44.367Z",
+      "priority": "low"
+    }
+  ],
+  "scorecards": [
+    {
+      "id": "eef7c3d9-dc1b-448c-be69-62650cfa84d5",
+      "candidateId": "22579afe-47e5-4bb9-8576-09fb110c0cc4",
+      "candidateName": "Arjun Kapoor",
+      "jobId": "0cde5e55-c8dd-40cb-b905-7c7e182298d1",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 3,
+        "communication": 4,
+        "culture": 4,
+        "experience": 3,
+        "motivation": 4
+      },
+      "recommendation": "Strong Hire",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "",
+      "created_at": "2026-04-06T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    },
+    {
+      "id": "b1d70110-dd47-4f7e-966f-4c3a470c51bf",
+      "candidateId": "c312b59a-e9aa-49df-8f3d-627602e14cb0",
+      "candidateName": "Priya Mehta",
+      "jobId": "07bac14b-35e2-4a25-9b14-376ac6ad8bd4",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 4,
+        "communication": 5,
+        "culture": 4,
+        "experience": 4,
+        "motivation": 5
+      },
+      "recommendation": "Hire",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "",
+      "created_at": "2026-04-05T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    },
+    {
+      "id": "1c2ee843-8d3e-4857-a0dc-d28035acc7cd",
+      "candidateId": "14601f9d-5f5c-44ca-9189-ac75673a0576",
+      "candidateName": "Sneha Iyer",
+      "jobId": "622f1791-513b-4320-99c9-2611504623d0",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 5,
+        "communication": 3,
+        "culture": 4,
+        "experience": 3,
+        "motivation": 4
+      },
+      "recommendation": "Hire",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "",
+      "created_at": "2026-04-04T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    },
+    {
+      "id": "3abb2728-94aa-4b24-8fed-f261c91c7615",
+      "candidateId": "d5b0c056-739e-4d44-bf8a-4be13ea085c5",
+      "candidateName": "Dev Sharma",
+      "jobId": "c43a5a80-e48c-4022-8c49-b54f2155a877",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 3,
+        "communication": 4,
+        "culture": 4,
+        "experience": 4,
+        "motivation": 5
+      },
+      "recommendation": "Maybe",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "",
+      "created_at": "2026-04-03T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    },
+    {
+      "id": "01288ba5-3ac2-442d-8839-df99dd0c01e5",
+      "candidateId": "8d42a0c4-7d0f-47f7-b717-589bba3096bf",
+      "candidateName": "Kavya Nair",
+      "jobId": "07b40c36-c9ce-447f-a1b5-fe070511aa23",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 4,
+        "communication": 5,
+        "culture": 4,
+        "experience": 3,
+        "motivation": 4
+      },
+      "recommendation": "No Hire",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "Limited experience in the domain",
+      "created_at": "2026-04-02T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    },
+    {
+      "id": "ac1b74e7-0855-4a9c-b349-7eb8a133882f",
+      "candidateId": "1662f15b-e0b1-4189-8eca-3406d1cce550",
+      "candidateName": "Rohan Verma",
+      "jobId": "f3433d86-0544-40a6-b8f2-22a814a8334a",
+      "reviewerId": "97528b88-3ab4-4758-9448-3c7544cece6d",
+      "scores": {
+        "technical": 5,
+        "communication": 3,
+        "culture": 4,
+        "experience": 4,
+        "motivation": 5
+      },
+      "recommendation": "Strong Hire",
+      "notes": "Evaluated after technical round",
+      "strengths": "Strong problem solving, good communication",
+      "weaknesses": "Limited experience in the domain",
+      "created_at": "2026-04-01T09:26:44.367Z",
+      "updated_at": "2026-04-06T09:26:44.372Z"
+    }
+  ],
+  "applications": []
+}
