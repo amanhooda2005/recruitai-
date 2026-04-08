@@ -23,7 +23,12 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 
 // ── Security Middleware ───────────────────────────────────────────────────────
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false, // 🔥 disable CSP
+  })
+);
 
 // CORS — allow the frontend origins
 const allowedOrigins = process.env.CORS_ORIGINS
